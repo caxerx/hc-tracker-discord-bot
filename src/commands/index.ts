@@ -2,6 +2,7 @@ import type { ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuIn
 import { handleDoneCommand, handleDoneButton, handleStartRaidWorkflow } from './done';
 import { handleRegCommand } from './reg';
 import { handleReportCommand, handleReportInteraction } from './report';
+import { handleWeeklyReportCommand, handleWeeklyReportInteraction } from './weekly-report';
 import { handleMonthlyReportCommand, handleMonthlyReportInteraction } from './monthly-report';
 import { handleStartRaidWorkflowAllCharsYes } from '../service/image-submission';
 
@@ -9,6 +10,7 @@ const commandHandlers: Record<string, (interaction: ChatInputCommandInteraction)
   done: handleDoneCommand,
   reg: handleRegCommand,
   report: handleReportCommand,
+  weeklyreport: handleWeeklyReportCommand,
   monthlyreport: handleMonthlyReportCommand,
 };
 
@@ -60,6 +62,8 @@ export async function handleStringSelectMenu(interaction: StringSelectMenuIntera
     handler = handleDoneButton;
   } else if (!handler && customId.startsWith('report_')) {
     handler = handleReportInteraction;
+  } else if (!handler && customId.startsWith('weekly_report_')) {
+    handler = handleWeeklyReportInteraction;
   } else if (!handler && customId.startsWith('monthly_report_')) {
     handler = handleMonthlyReportInteraction;
   }

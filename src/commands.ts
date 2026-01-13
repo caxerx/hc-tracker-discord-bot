@@ -17,6 +17,9 @@ const commands = [
     .setName('report')
     .setDescription('生成一個 Raid 完成報告'),
   new SlashCommandBuilder()
+    .setName('weeklyreport')
+    .setDescription('生成一個每週 Raid 完成報告'),
+  new SlashCommandBuilder()
     .setName('monthlyreport')
     .setDescription('生成一個每月 Raid 完成報告'),
 ];
