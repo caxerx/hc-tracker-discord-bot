@@ -1,0 +1,196 @@
+import {
+  MessageFlags,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+} from 'discord.js';
+import type {
+  ChatInputCommandInteraction,
+  StringSelectMenuInteraction,
+  ButtonInteraction,
+  TextChannel,
+} from 'discord.js';
+import { prisma } from '../db';
+import { RaidType } from '../generated/prisma/enums';
+import { format, startOfMonth, endOfMonth } from 'date-fns';
+
+interface MonthlyReportSessionData {
+  userId: string;
+  selectedMonth?: string;
+  selectedRaid?: RaidType;
+  step: 'month_selection' | 'raid_selection' | 'complete';
+}
+
+const monthlyReportSessions = new Map<string, MonthlyReportSessionData>();
+
+export async function handleMonthlyReportCommand(
+  interaction: ChatInputCommandInteraction
+): Promise<void> {
+  const userId = interaction.user.id;
+
+  // Initialize session
+  monthlyReportSessions.set(userId, {
+    userId,
+    step: 'month_selection',
+  });
+
+  // Step 1: Ask for month selection
+  await showMonthSelection(interaction);
+}
+
+async function showMonthSelection(
+  interaction: ChatInputCommandInteraction
+): Promise<void> {
+  // Generate last 6 months for selection
+  const months: { label: string; value: string }[] = [];
+  const today = new Date();
+
+  for (let i = 0; i < 6; i++) {
+    const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+    const monthStr = format(date, 'yyyy-MM');
+    months.push({ label: monthStr, value: monthStr });
+  }
+
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(`monthly_report_month_select_${interaction.user.id}`)
+      .setPlaceholder('請選擇月份')
+      .addOptions(months)
+  );
+
+  await interaction.reply({
+    content: '請選擇月份:',
+    components: [row],
+    flags: MessageFlags.Ephemeral,
+  });
+}
+
+async function showRaidSelection(
+  interaction: StringSelectMenuInteraction,
+  session: MonthlyReportSessionData
+): Promise<void> {
+  const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(`monthly_report_raid_select_${session.userId}`)
+      .setPlaceholder('請選擇 Raid 類型')
+      .addOptions([
+        {
+          label: 'Kirollas',
+          value: RaidType.Kirollas,
+          description: '靈王',
+        },
+        {
+          label: 'Carno',
+          value: RaidType.Carno,
+          description: '獸王',
+        },
+      ])
+  );
+
+  await interaction.update({
+    content: '請選擇 Raid 類型:',
+    components: [row],
+  });
+}
+
+async function generateMonthlyReport(
+  interaction: StringSelectMenuInteraction,
+  session: MonthlyReportSessionData
+): Promise<void> {
+  if (!session.selectedMonth || !session.selectedRaid) {
+    await interaction.update({
+      content: '發生錯誤: 缺少月份或 Raid 類型選擇.',
+      components: [],
+    });
+    monthlyReportSessions.delete(session.userId);
+    return;
+  }
+
+  try {
+    // Parse the selected month (format: YYYY-MM)
+    const [year, month] = session.selectedMonth.split('-').map(Number);
+    const monthStart = startOfMonth(new Date(year!, month! - 1, 1));
+    const monthEnd = endOfMonth(monthStart);
+
+    // Query to get completion counts by character name
+    // - Multiple completions on the same day only count as 1
+    // - Same character name by different discord users only count as 1
+    const results = await prisma.$queryRaw<
+      Array<{ characterName: string; completionCount: bigint }>
+    >`
+      SELECT
+        rc."characterName",
+        COUNT(DISTINCT DATE(raid."raidDate")) as "completionCount"
+      FROM "RaidCompletion" raid
+      INNER JOIN "RegisterCharacter" rc ON raid."characterId" = rc.id
+      WHERE raid."raidType" = ${session.selectedRaid}::"RaidType"
+        AND raid."raidDate" >= ${monthStart}::date
+        AND raid."raidDate" <= ${monthEnd}::date
+      GROUP BY rc."characterName"
+      ORDER BY "completionCount" DESC, rc."characterName" ASC
+    `;
+
+    // Format the report
+    let reportMessage = `**Monthly HC Report: ${session.selectedRaid} (${session.selectedMonth})**\n`;
+    reportMessage += '```\n';
+
+    if (results.length > 0) {
+      for (const row of results) {
+        reportMessage += `${row.completionCount} ${row.characterName}\n`;
+      }
+    } else {
+      reportMessage += '(no completions)';
+    }
+
+    reportMessage += '```';
+
+    // Send the report as a public message
+    await (interaction.channel as TextChannel)?.send(reportMessage);
+
+    // Update the ephemeral message to confirm
+    await interaction.update({
+      content: '報告生成成功!',
+      components: [],
+    });
+
+    monthlyReportSessions.delete(session.userId);
+  } catch (error) {
+    console.error('Error generating monthly report:', error);
+    await interaction.update({
+      content: '發生錯誤: 生成報告時發生錯誤. 請稍後再試.',
+      components: [],
+    });
+    monthlyReportSessions.delete(session.userId);
+  }
+}
+
+export async function handleMonthlyReportInteraction(
+  interaction: StringSelectMenuInteraction | ButtonInteraction
+): Promise<void> {
+  const userId = interaction.user.id;
+  const session = monthlyReportSessions.get(userId);
+
+  if (!session) {
+    await interaction.reply({
+      content: '已過期. 請重新執行 /monthlyreport 指令.',
+      flags: MessageFlags.Ephemeral,
+    });
+    return;
+  }
+
+  if (interaction.isStringSelectMenu()) {
+    const customId = interaction.customId;
+
+    // Handle month selection
+    if (customId.startsWith('monthly_report_month_select_')) {
+      session.selectedMonth = interaction.values[0];
+      session.step = 'raid_selection';
+      await showRaidSelection(interaction, session);
+    }
+    // Handle raid selection
+    else if (customId.startsWith('monthly_report_raid_select_')) {
+      session.selectedRaid = interaction.values[0] as RaidType;
+      session.step = 'complete';
+      await generateMonthlyReport(interaction, session);
+    }
+  }
+}

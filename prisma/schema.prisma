@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client"
+  output          = "../src/generated/prisma"
+  previewFeatures = ["typedSql"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model RegisterCharacter {
+  id                    String @id @default(uuid())
+  characterName         String
+  registerDiscordUserId String
+
+  registerDate   DateTime  @default(now()) @db.Date
+  unregisterDate DateTime? @default("2099-12-31T23:59:59.999Z") @db.Date
+
+  raidCompletions RaidCompletion[]
+
+  @@index([registerDiscordUserId, registerDate, unregisterDate])
+}
+
+enum RaidType {
+  Kirollas
+  Carno
+}
+
+model RaidCompletion {
+  id          String            @id @default(uuid())
+  raidType    RaidType
+  characterId String
+  character   RegisterCharacter @relation(fields: [characterId], references: [id])
+  raidDate    DateTime          @db.Date
+
+  @@index([characterId, raidDate])
+}
+
+model RaidCompletionEvidence {
+  id            String   @id @default(uuid())
+  discordUserId String
+  raidDate      DateTime @db.Date
+  messageId     String
+
+  @@index([discordUserId, raidDate])
+}
+
+enum ChannelType {
+  TodaySubmission
+  OtherDateSubmission
+}
+
+model ChannelSetting {
+  id          String      @id @default(uuid())
+  channelId   String
+  channelType ChannelType
+
+  @@unique([channelId, channelType])
+}

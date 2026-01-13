@@ -1,0 +1,23 @@
+FROM oven/bun:1-alpine
+
+WORKDIR /app
+
+# Install PM2 globally
+RUN bun add -g pm2
+
+# Copy package files
+COPY package.json bun.lockb* ./
+
+# Install production dependencies
+RUN bun install --production
+
+# Copy source code and PM2 config
+COPY src ./src
+COPY tsconfig.json ./
+COPY ecosystem.config.js ./
+
+# Expose port for debugging if needed
+EXPOSE 3000
+
+# Start with PM2
+CMD ["pm2-runtime", "start", "ecosystem.config.js"]
