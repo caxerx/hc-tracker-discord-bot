@@ -46,7 +46,7 @@ model RaidCompletionEvidence {
   id            String   @id @default(uuid())
   discordUserId String
   raidDate      DateTime @db.Date
-  messageId     String
+  messageUrl    String
 
   @@index([discordUserId, raidDate])
 }

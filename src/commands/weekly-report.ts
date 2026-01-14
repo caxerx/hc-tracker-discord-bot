@@ -117,20 +117,23 @@ async function generateWeeklyReport(
     const weekStart = startOfWeek(weekStartDate, { weekStartsOn: 1 }); // Monday
     const weekEnd = endOfWeek(weekStartDate, { weekStartsOn: 1 }); // Sunday
 
-    // Query to get completion counts by character name
+    // Query to get all registered characters and their completion counts
     // - Multiple completions on the same day only count as 1
     // - Same character name by different discord users only count as 1
+    // - Shows all characters including those with 0 completions
     const results = await prisma.$queryRaw<
       Array<{ characterName: string; completionCount: bigint }>
     >`
       SELECT
         rc."characterName",
-        COUNT(DISTINCT DATE(raid."raidDate")) as "completionCount"
-      FROM "RaidCompletion" raid
-      INNER JOIN "RegisterCharacter" rc ON raid."characterId" = rc.id
-      WHERE raid."raidType" = ${session.selectedRaid}::"RaidType"
+        COALESCE(COUNT(DISTINCT DATE(raid."raidDate")), 0) as "completionCount"
+      FROM "RegisterCharacter" rc
+      LEFT JOIN "RaidCompletion" raid
+        ON raid."characterId" = rc.id
+        AND raid."raidType" = ${session.selectedRaid}::"RaidType"
         AND raid."raidDate" >= ${weekStart}::date
         AND raid."raidDate" <= ${weekEnd}::date
+      WHERE rc."unregisterDate" >= ${weekEnd}::date
       GROUP BY rc."characterName"
       ORDER BY "completionCount" DESC, rc."characterName" ASC
     `;
@@ -147,7 +150,7 @@ async function generateWeeklyReport(
         reportMessage += `${row.completionCount} ${row.characterName}\n`;
       }
     } else {
-      reportMessage += '(no completions)';
+      reportMessage += '(no registered characters)';
     }
 
     reportMessage += '```';

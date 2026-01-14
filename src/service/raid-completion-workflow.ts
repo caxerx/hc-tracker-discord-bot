@@ -6,6 +6,8 @@ import {
   StringSelectMenuBuilder,
   Message,
   User,
+  TextChannel,
+  type Interaction,
 } from 'discord.js';
 import {
   type ChatInputCommandInteraction,
@@ -405,12 +407,15 @@ async function showCharacterConfirmation(
  * @returns The number of records created
  */
 async function createRaidCompletionRecords(
-  discordUserId: string,
+  session: SessionData,
   characterIds: string[] | null,
-  completedBothRaids: boolean,
-  selectedRaid: RaidType | undefined,
-  raidDate: Date
+  raidDate: Date,
+  interaction: Interaction
 ): Promise<number> {
+  const discordUserId = session.userId;
+  const completedBothRaids = session.completedBothRaids;
+  const selectedRaid = session.selectedRaid;
+
   let targetCharacterIds: string[];
 
   if (characterIds === null) {
@@ -448,10 +453,30 @@ async function createRaidCompletionRecords(
     }
   }
 
-  await prisma.raidCompletion.createMany({
+  const transaction = []
+
+  if (session.evidenceMessageId && interaction.channel) {
+    try {
+      // Fetch the message to get its URL
+      const evidenceMessage = await interaction.channel.messages.fetch(session.evidenceMessageId);
+      transaction.push(prisma.raidCompletionEvidence.create({
+        data: {
+          discordUserId,
+          raidDate,
+          messageUrl: evidenceMessage.url,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching evidence message:', error);
+    }
+  }
+
+  transaction.push(prisma.raidCompletion.createMany({
     data: completionRecords,
     skipDuplicates: true,
-  });
+  }));
+
+  await prisma.$transaction(transaction);
 
   return completionRecords.length;
 }
@@ -463,7 +488,6 @@ export async function completeRaidTracking(
   try {
     // Use selected date if available, otherwise use raidDate
     const raidDate = session.selectedDate || getUtcToday();
-    console.log(raidDate);
 
     let characterIds: string[] | null = null;
 
@@ -484,20 +508,11 @@ export async function completeRaidTracking(
 
     // Create raid completion records
     const recordCount = await createRaidCompletionRecords(
-      session.userId,
+      session,
       characterIds,
-      session.completedBothRaids,
-      session.selectedRaid,
-      raidDate
+      raidDate,
+      interaction,
     );
-
-    if (session.evidenceMessageId) {
-      await createRaidCompletionEvidence(
-        session.userId,
-        raidDate,
-        session.evidenceMessageId
-      );
-    }
 
     if (recordCount === 0) {
       await interaction.update({
@@ -509,14 +524,14 @@ export async function completeRaidTracking(
     }
 
     await interaction.update({
-      content: `成功記錄完成.`,
+      content: `記錄完成.`,
       components: [],
     });
 
     if (session.messageId) {
       await interaction.channel?.messages.fetch(session.messageId).then((message) => {
         message.edit({
-          content: `成功記錄完成.`,
+          content: `記錄完成.`,
           components: [],
         });
       });
@@ -532,19 +547,4 @@ export async function completeRaidTracking(
 
     sessions.delete(session.userId);
   }
-}
-
-
-async function createRaidCompletionEvidence(
-  discordUserId: string,
-  raidDate: Date,
-  messageId: string
-): Promise<void> {
-  await prisma.raidCompletionEvidence.create({
-    data: {
-      discordUserId,
-      raidDate,
-      messageId,
-    },
-  });
 }

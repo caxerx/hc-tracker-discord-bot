@@ -31,7 +31,6 @@ export function registerMessageHandler(client: Client): void {
           // Fetch the message being replied to
           const repliedMessage = await message.channel.messages.fetch(message.reference.messageId);
 
-          console.log(repliedMessage.attachments);
           // Check if the replied message contains an image
           const imageAttachment = repliedMessage.attachments.find(attachment =>
             attachment.contentType?.startsWith('image/')

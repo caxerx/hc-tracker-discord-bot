@@ -22,6 +22,21 @@ const commands = [
   new SlashCommandBuilder()
     .setName('monthlyreport')
     .setDescription('生成一個每月 Raid 完成報告'),
+  new SlashCommandBuilder()
+    .setName('query')
+    .setDescription('查詢角色的 Raid 完成紀錄和證據')
+    .addStringOption(option =>
+      option
+        .setName('character_name')
+        .setDescription('角色名稱')
+        .setRequired(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('date')
+        .setDescription('日期 (YYYY-MM-DD)')
+        .setRequired(true)
+    ),
 ];
 
 export const registeredCommands: RESTPostAPIApplicationCommandsResult[] = []

@@ -4,6 +4,7 @@ import { handleRegCommand } from './reg';
 import { handleReportCommand, handleReportInteraction } from './report';
 import { handleWeeklyReportCommand, handleWeeklyReportInteraction } from './weekly-report';
 import { handleMonthlyReportCommand, handleMonthlyReportInteraction } from './monthly-report';
+import { handleQueryCommand } from './query';
 import { handleStartRaidWorkflowAllCharsYes } from '../service/image-submission';
 
 const commandHandlers: Record<string, (interaction: ChatInputCommandInteraction) => Promise<void>> = {
@@ -12,6 +13,7 @@ const commandHandlers: Record<string, (interaction: ChatInputCommandInteraction)
   report: handleReportCommand,
   weeklyreport: handleWeeklyReportCommand,
   monthlyreport: handleMonthlyReportCommand,
+  query: handleQueryCommand,
 };
 
 const buttonHandlers: Record<string, (interaction: ButtonInteraction) => Promise<void>> = {};
