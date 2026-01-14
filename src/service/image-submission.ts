@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Message } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Message, MessageFlags } from "discord.js";
 
 export async function handleImageSubmissionMessage(message: Message, requireDateSelection: boolean = false): Promise<void> {
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -22,6 +22,19 @@ export async function handleImageSubmissionMessage(message: Message, requireDate
 }
 
 export async function handleStartRaidWorkflowAllCharsYes(interaction: ButtonInteraction): Promise<void> {
+    if (!interaction.message.reference?.messageId) return;
+    const originalMessage = await interaction.channel?.messages.fetch(interaction.message.reference?.messageId);
+    if (!originalMessage) return;
+
+    if (interaction.user.id !== originalMessage?.author?.id) {
+        await interaction.reply({
+            content: '你不能使用這個按鈕.',
+            flags: MessageFlags.Ephemeral,
+        });
+        return;
+    }
+
+
     // Parse requireDateSelection from customId (format: start_raid_workflow_allchars_yes_{userId}_{requireDateSelection})
     const customIdParts = interaction.customId.split('_');
     const requireDateSelection = customIdParts[customIdParts.length - 1] === 'true';
