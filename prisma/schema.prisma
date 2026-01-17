@@ -54,6 +54,7 @@ model RaidCompletionEvidence {
 enum ChannelType {
   TodaySubmission
   OtherDateSubmission
+  DailyNotification
 }
 
 model ChannelSetting {
@@ -62,4 +63,11 @@ model ChannelSetting {
   channelType ChannelType
 
   @@unique([channelId, channelType])
+}
+
+model CompletedProgress {
+  id             String   @id @default(uuid())
+  raidName       String   @unique
+  completedCount Int
+  lastUpdate     DateTime @default(now())
 }

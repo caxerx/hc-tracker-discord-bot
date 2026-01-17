@@ -130,8 +130,10 @@ async function generateReport(
 
     const dateFormatted = new Date(session.selectedDate).toISOString().split('T')[0];
 
+    const totalCharacters = finishedCharacters.length + notFinishedCharacters.length;
+
     let reportMessage = `**HC Report: ${session.selectedRaid} (${dateFormatted})**\n`;
-    reportMessage += '**Finished**\n';
+    reportMessage += `**Finished (${finishedCharacters.length}/${totalCharacters})**\n`;
     reportMessage += '```\n';
     if (finishedCharacters.length > 0) {
       reportMessage += finishedCharacters.join('\n');
@@ -139,7 +141,7 @@ async function generateReport(
       reportMessage += '(none)';
     }
     reportMessage += '\n```\n\n';
-    reportMessage += '**Not Finished**\n';
+    reportMessage += `**Not Finished (${notFinishedCharacters.length}/${totalCharacters})**\n`;
     reportMessage += '```\n';
     if (notFinishedCharacters.length > 0) {
       reportMessage += notFinishedCharacters.join('\n');

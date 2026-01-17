@@ -48,6 +48,10 @@ class ChannelSettingService {
     return channelTypes ? Array.from(channelTypes) : [];
   }
 
+  getAllChannelWithType(channelType: ChannelType): string[] {
+    return Array.from(this.channelMap.entries()).filter(([_, channelTypes]) => channelTypes.has(channelType)).map(([channelId, _]) => channelId);
+  }
+
   /**
    * Checks if the service has been loaded
    */

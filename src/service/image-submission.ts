@@ -1,20 +1,21 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonInteraction, ButtonStyle, Message, MessageFlags } from "discord.js";
 
 export async function handleImageSubmissionMessage(message: Message, requireDateSelection: boolean = false): Promise<void> {
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-        new ButtonBuilder()
-            .setCustomId(`start_raid_workflow_${message.author.id}_${requireDateSelection}`)
-            .setLabel('記錄部份角色')
-            .setStyle(ButtonStyle.Primary)
-    ).addComponents(
-        new ButtonBuilder()
-            .setCustomId(`start_raid_workflow_allchars_yes_${message.author.id}_${requireDateSelection}`)
-            .setLabel('完成所有角色的HC')
-            .setStyle(ButtonStyle.Primary)
-    );
+    const row = new ActionRowBuilder<ButtonBuilder>()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId(`start_raid_workflow_${message.author.id}_${requireDateSelection}`)
+                .setLabel('記錄部份角色')
+                .setStyle(ButtonStyle.Primary)
+        ).addComponents(
+            new ButtonBuilder()
+                .setCustomId(`start_raid_workflow_allchars_yes_${message.author.id}_${requireDateSelection}`)
+                .setLabel('完成所有角色的HC')
+                .setStyle(ButtonStyle.Primary)
+        );
 
     await message.reply({
-        content: '請選擇要記錄的內容:',
+        content: '## 請注意, 記錄尚未完成 \n請選擇要記錄的內容:',
         components: [row],
     });
 

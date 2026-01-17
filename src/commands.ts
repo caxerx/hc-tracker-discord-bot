@@ -37,6 +37,9 @@ const commands = [
         .setDescription('日期 (YYYY-MM-DD)')
         .setRequired(true)
     ),
+  new SlashCommandBuilder()
+    .setName('lod')
+    .setDescription('顯示接下來 24 小時的 LoD 時間表'),
 ];
 
 export const registeredCommands: RESTPostAPIApplicationCommandsResult[] = []
