@@ -1,18 +1,20 @@
-import {
-  MessageFlags,
-  ActionRowBuilder,
-  StringSelectMenuBuilder,
-} from 'discord.js';
 import type {
   ChatInputCommandInteraction,
   StringSelectMenuInteraction,
   ButtonInteraction,
   TextChannel,
 } from 'discord.js';
-import { prisma } from '../db';
-import { RaidType } from '../generated/prisma/enums';
+import {
+  MessageFlags,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+} from 'discord.js';
+
+type AnyInteraction = ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
+import { prisma } from '../../db';
+import { RaidType } from '../../generated/prisma/enums';
 import { format, startOfWeek, endOfWeek, addWeeks } from 'date-fns';
-import { getRaidCompletionCountReport } from '../generated/prisma/sql/getRaidCompletionCountReport';
+import { getRaidCompletionCountReport } from '../../generated/prisma/sql/getRaidCompletionCountReport';
 
 interface WeeklyReportSessionData {
   userId: string;
@@ -167,7 +169,7 @@ async function generateWeeklyReport(
   }
 }
 
-export async function handleWeeklyReportInteraction(
+export async function handleWeeklyReportSelectMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
   const userId = interaction.user.id;
@@ -197,4 +199,34 @@ export async function handleWeeklyReportInteraction(
       await generateWeeklyReport(interaction, session);
     }
   }
+}
+
+// Interaction handler registry
+export function handleWeeklyReportInteraction(
+  interaction: AnyInteraction
+): Promise<void> {
+  if (interaction.isChatInputCommand()) {
+    return handleWeeklyReportCommand(interaction);
+  }
+
+  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+    return handleWeeklyReportSelectMenu(interaction);
+  }
+
+  return Promise.resolve();
+}
+
+// Matcher function to determine if this handler should process the interaction
+export function matchesWeeklyReportInteraction(
+  interaction: AnyInteraction
+): boolean {
+  if (interaction.isChatInputCommand()) {
+    return interaction.commandName === 'weeklyreport';
+  }
+
+  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+    return interaction.customId.startsWith('weekly_report_');
+  }
+
+  return false;
 }

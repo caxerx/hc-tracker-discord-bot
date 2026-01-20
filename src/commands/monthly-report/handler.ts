@@ -1,18 +1,20 @@
-import {
-  MessageFlags,
-  ActionRowBuilder,
-  StringSelectMenuBuilder,
-} from 'discord.js';
 import type {
   ChatInputCommandInteraction,
   StringSelectMenuInteraction,
   ButtonInteraction,
   TextChannel,
 } from 'discord.js';
-import { prisma } from '../db';
-import { RaidType } from '../generated/prisma/enums';
+import {
+  MessageFlags,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+} from 'discord.js';
+
+type AnyInteraction = ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
+import { prisma } from '../../db';
+import { RaidType } from '../../generated/prisma/enums';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
-import { getRaidCompletionCountReport } from '../generated/prisma/sql/getRaidCompletionCountReport';
+import { getRaidCompletionCountReport } from '../../generated/prisma/sql/getRaidCompletionCountReport';
 
 interface MonthlyReportSessionData {
   userId: string;
@@ -158,7 +160,7 @@ async function generateMonthlyReport(
   }
 }
 
-export async function handleMonthlyReportInteraction(
+export async function handleMonthlyReportSelectMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
   const userId = interaction.user.id;
@@ -188,4 +190,34 @@ export async function handleMonthlyReportInteraction(
       await generateMonthlyReport(interaction, session);
     }
   }
+}
+
+// Interaction handler registry
+export function handleMonthlyReportInteraction(
+  interaction: AnyInteraction
+): Promise<void> {
+  if (interaction.isChatInputCommand()) {
+    return handleMonthlyReportCommand(interaction);
+  }
+
+  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+    return handleMonthlyReportSelectMenu(interaction);
+  }
+
+  return Promise.resolve();
+}
+
+// Matcher function to determine if this handler should process the interaction
+export function matchesMonthlyReportInteraction(
+  interaction: AnyInteraction
+): boolean {
+  if (interaction.isChatInputCommand()) {
+    return interaction.commandName === 'monthlyreport';
+  }
+
+  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+    return interaction.customId.startsWith('monthly_report_');
+  }
+
+  return false;
 }

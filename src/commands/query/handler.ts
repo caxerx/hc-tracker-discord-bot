@@ -1,13 +1,11 @@
-import {
-  MessageFlags,
-} from 'discord.js';
-import type {
-  ChatInputCommandInteraction,
-} from 'discord.js';
-import { prisma } from '../db';
-import { RaidType } from '../generated/prisma/enums';
+import type { ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction } from 'discord.js';
+import { MessageFlags } from 'discord.js';
+
+type AnyInteraction = ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
+import { prisma } from '../../db';
+import { RaidType } from '../../generated/prisma/enums';
 import { TZDate } from '@date-fns/tz';
-import { getCharacterRaidCompletions } from '../generated/prisma/sql/getCharacterRaidCompletions';
+import { getCharacterRaidCompletions } from '../../generated/prisma/sql/getCharacterRaidCompletions';
 
 export async function handleQueryCommand(
   interaction: ChatInputCommandInteraction
@@ -25,7 +23,7 @@ export async function handleQueryCommand(
     return;
   }
 
-  const queryDate = new TZDate(dateStr, "UTC");
+  const queryDate = new TZDate(dateStr, 'UTC');
 
   // Check if date is valid
   if (isNaN(queryDate.getTime())) {
@@ -52,7 +50,7 @@ export async function handleQueryCommand(
     }
 
     // Get evidence for all Discord users on this date
-    const discordUserIds = [...new Set(completions.map(c => c.discordUserId))];
+    const discordUserIds = [...new Set(completions.map((c) => c.discordUserId))];
     const evidences = await prisma.raidCompletionEvidence.findMany({
       where: {
         discordUserId: {
@@ -80,7 +78,7 @@ export async function handleQueryCommand(
       responseMessage += `完成的 Raids: ${raidTypes.join(', ')}\n`;
 
       // Find evidence for this user
-      const userEvidence = evidences.filter(e => e.discordUserId === discordUserId);
+      const userEvidence = evidences.filter((e) => e.discordUserId === discordUserId);
       if (userEvidence.length > 0) {
         responseMessage += '提交記錄:\n';
         for (const evidence of userEvidence) {
@@ -103,4 +101,21 @@ export async function handleQueryCommand(
       flags: MessageFlags.Ephemeral,
     });
   }
+}
+
+// Interaction handler registry
+export function handleQueryInteraction(
+  interaction: AnyInteraction
+): Promise<void> {
+  if (interaction.isChatInputCommand()) {
+    return handleQueryCommand(interaction);
+  }
+  return Promise.resolve();
+}
+
+// Matcher function to determine if this handler should process the interaction
+export function matchesQueryInteraction(
+  interaction: AnyInteraction
+): boolean {
+  return interaction.isChatInputCommand() && interaction.commandName === 'query';
 }

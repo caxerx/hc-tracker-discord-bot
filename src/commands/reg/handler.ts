@@ -1,10 +1,14 @@
+import type { ChatInputCommandInteraction, ButtonInteraction, StringSelectMenuInteraction } from 'discord.js';
 import { MessageFlags } from 'discord.js';
-import type { ChatInputCommandInteraction } from 'discord.js';
-import { prisma } from '../db';
+import { prisma } from '../../db';
 import { TZDate } from '@date-fns/tz';
 import { startOfDay } from 'date-fns';
 
-export async function handleRegCommand(interaction: ChatInputCommandInteraction): Promise<void> {
+type AnyInteraction = ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
+
+export async function handleRegCommand(
+  interaction: ChatInputCommandInteraction
+): Promise<void> {
   const characterName = interaction.options.getString('character_name', true);
   const discordUserId = interaction.user.id;
 
@@ -15,15 +19,15 @@ export async function handleRegCommand(interaction: ChatInputCommandInteraction)
         registerDiscordUserId: discordUserId,
         characterName: characterName,
         unregisterDate: {
-          gte: new Date() // Check if unregisterDate is in the future (still active)
-        }
-      }
+          gte: new Date(), // Check if unregisterDate is in the future (still active)
+        },
+      },
     });
 
     if (existingCharacter) {
       await interaction.reply({
         content: `角色「${characterName}」已經註冊過了.`,
-        flags: MessageFlags.Ephemeral
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -53,19 +57,36 @@ export async function handleRegCommand(interaction: ChatInputCommandInteraction)
         data: {
           characterName: characterName,
           registerDiscordUserId: discordUserId,
-        }
+        },
       });
     }
 
     await interaction.reply({
       content: `角色「${characterName}」已經註冊成功.`,
-      flags: MessageFlags.Ephemeral
+      flags: MessageFlags.Ephemeral,
     });
   } catch (error) {
     console.error('Error registering character:', error);
     await interaction.reply({
       content: '發生錯誤.',
-      flags: MessageFlags.Ephemeral
+      flags: MessageFlags.Ephemeral,
     });
   }
+}
+
+// Interaction handler registry
+export function handleRegInteraction(
+  interaction: AnyInteraction
+): Promise<void> {
+  if (interaction.isChatInputCommand()) {
+    return handleRegCommand(interaction);
+  }
+  return Promise.resolve();
+}
+
+// Matcher function to determine if this handler should process the interaction
+export function matchesRegInteraction(
+  interaction: AnyInteraction
+): boolean {
+  return interaction.isChatInputCommand() && interaction.commandName === 'reg';
 }

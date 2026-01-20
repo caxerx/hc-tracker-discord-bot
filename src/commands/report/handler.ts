@@ -1,19 +1,21 @@
-import {
-  MessageFlags,
-  ActionRowBuilder,
-  StringSelectMenuBuilder,
-} from 'discord.js';
 import type {
   ChatInputCommandInteraction,
   StringSelectMenuInteraction,
   ButtonInteraction,
   TextChannel,
 } from 'discord.js';
-import { prisma } from '../db';
-import { getRaidCompletionReport } from '../generated/prisma/sql';
-import { RaidType } from '../generated/prisma/enums';
-import { addDays, format, getDate, getDay, getMonth, getYear, startOfDay } from 'date-fns';
-import { getUtcToday } from '../utils/date';
+import {
+  MessageFlags,
+  ActionRowBuilder,
+  StringSelectMenuBuilder,
+} from 'discord.js';
+
+type AnyInteraction = ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
+import { prisma } from '../../db';
+import { getRaidCompletionReport } from '../../generated/prisma/sql';
+import { RaidType } from '../../generated/prisma/enums';
+import { addDays, format } from 'date-fns';
+import { getUtcToday } from '../../utils/date';
 
 interface ReportSessionData {
   userId: string;
@@ -112,10 +114,12 @@ async function generateReport(
     // Use TypedSQL for better performance and type safety
     // Get all unique characters (grouped by character name) that are registered for the selected date
     // and check if any discord user completed the raid for that character
-    const result = await prisma.$queryRawTyped(getRaidCompletionReport(
-      format(new Date(session.selectedDate), 'yyyy-MM-dd'),
-      session.selectedRaid
-    ));
+    const result = await prisma.$queryRawTyped(
+      getRaidCompletionReport(
+        format(new Date(session.selectedDate), 'yyyy-MM-dd'),
+        session.selectedRaid
+      )
+    );
 
     const finishedCharacters: string[] = [];
     const notFinishedCharacters: string[] = [];
@@ -170,7 +174,7 @@ async function generateReport(
   }
 }
 
-export async function handleReportInteraction(
+export async function handleReportSelectMenu(
   interaction: StringSelectMenuInteraction | ButtonInteraction
 ): Promise<void> {
   const userId = interaction.user.id;
@@ -200,4 +204,34 @@ export async function handleReportInteraction(
       await generateReport(interaction, session);
     }
   }
+}
+
+// Interaction handler registry
+export function handleReportInteraction(
+  interaction: AnyInteraction
+): Promise<void> {
+  if (interaction.isChatInputCommand()) {
+    return handleReportCommand(interaction);
+  }
+
+  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+    return handleReportSelectMenu(interaction);
+  }
+
+  return Promise.resolve();
+}
+
+// Matcher function to determine if this handler should process the interaction
+export function matchesReportInteraction(
+  interaction: AnyInteraction
+): boolean {
+  if (interaction.isChatInputCommand()) {
+    return interaction.commandName === 'report';
+  }
+
+  if (interaction.isStringSelectMenu() || interaction.isButton()) {
+    return interaction.customId.startsWith('report_');
+  }
+
+  return false;
 }
