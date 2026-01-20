@@ -12,6 +12,7 @@ import type {
 import { prisma } from '../db';
 import { RaidType } from '../generated/prisma/enums';
 import { format, startOfWeek, endOfWeek, addWeeks } from 'date-fns';
+import { getRaidCompletionCountReport } from '../generated/prisma/sql/getRaidCompletionCountReport';
 
 interface WeeklyReportSessionData {
   userId: string;
@@ -121,22 +122,13 @@ async function generateWeeklyReport(
     // - Multiple completions on the same day only count as 1
     // - Same character name by different discord users only count as 1
     // - Shows all characters including those with 0 completions
-    const results = await prisma.$queryRaw<
-      Array<{ characterName: string; completionCount: bigint }>
-    >`
-      SELECT
-        rc."characterName",
-        COALESCE(COUNT(DISTINCT DATE(raid."raidDate")), 0) as "completionCount"
-      FROM "RegisterCharacter" rc
-      LEFT JOIN "RaidCompletion" raid
-        ON raid."characterId" = rc.id
-        AND raid."raidType" = ${session.selectedRaid}::"RaidType"
-        AND raid."raidDate" >= ${weekStart}::date
-        AND raid."raidDate" <= ${weekEnd}::date
-      WHERE rc."unregisterDate" >= ${weekEnd}::date
-      GROUP BY rc."characterName"
-      ORDER BY "completionCount" DESC, rc."characterName" ASC
-    `;
+    const results = await prisma.$queryRawTyped(
+      getRaidCompletionCountReport(
+        format(weekStart, 'yyyy-MM-dd'),
+        format(weekEnd, 'yyyy-MM-dd'),
+        session.selectedRaid
+      )
+    );
 
     // Format the report
     const weekStartStr = format(weekStart, 'yyyy-MM-dd');

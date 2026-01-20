@@ -113,7 +113,7 @@ async function generateReport(
     // Get all unique characters (grouped by character name) that are registered for the selected date
     // and check if any discord user completed the raid for that character
     const result = await prisma.$queryRawTyped(getRaidCompletionReport(
-      session.selectedDate,
+      format(new Date(session.selectedDate), 'yyyy-MM-dd'),
       session.selectedRaid
     ));
 

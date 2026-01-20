@@ -12,6 +12,7 @@ import type {
 import { prisma } from '../db';
 import { RaidType } from '../generated/prisma/enums';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { getRaidCompletionCountReport } from '../generated/prisma/sql/getRaidCompletionCountReport';
 
 interface MonthlyReportSessionData {
   userId: string;
@@ -115,22 +116,13 @@ async function generateMonthlyReport(
     // - Multiple completions on the same day only count as 1
     // - Same character name by different discord users only count as 1
     // - Shows all characters including those with 0 completions
-    const results = await prisma.$queryRaw<
-      Array<{ characterName: string; completionCount: bigint }>
-    >`
-      SELECT
-        rc."characterName",
-        COALESCE(COUNT(DISTINCT DATE(raid."raidDate")), 0) as "completionCount"
-      FROM "RegisterCharacter" rc
-      LEFT JOIN "RaidCompletion" raid
-        ON raid."characterId" = rc.id
-        AND raid."raidType" = ${session.selectedRaid}::"RaidType"
-        AND raid."raidDate" >= ${monthStart}::date
-        AND raid."raidDate" <= ${monthEnd}::date
-      WHERE rc."unregisterDate" >= ${monthEnd}::date
-      GROUP BY rc."characterName"
-      ORDER BY "completionCount" DESC, rc."characterName" ASC
-    `;
+    const results = await prisma.$queryRawTyped(
+      getRaidCompletionCountReport(
+        format(monthStart, 'yyyy-MM-dd'),
+        format(monthEnd, 'yyyy-MM-dd'),
+        session.selectedRaid
+      )
+    );
 
     // Format the report
     let reportMessage = `**Monthly HC Report: ${session.selectedRaid} (${session.selectedMonth})**\n`;

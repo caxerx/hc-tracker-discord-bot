@@ -7,6 +7,7 @@ import type {
 import { prisma } from '../db';
 import { RaidType } from '../generated/prisma/enums';
 import { TZDate } from '@date-fns/tz';
+import { getCharacterRaidCompletions } from '../generated/prisma/sql/getCharacterRaidCompletions';
 
 export async function handleQueryCommand(
   interaction: ChatInputCommandInteraction
@@ -38,23 +39,9 @@ export async function handleQueryCommand(
   try {
     // Query to get all completions for this character name on this date
     // along with the Discord user information and evidence
-    const completions = await prisma.$queryRaw<
-      Array<{
-        raidType: RaidType;
-        discordUserId: string;
-        characterId: string;
-      }>
-    >`
-      SELECT DISTINCT
-        rc."raidType",
-        reg."registerDiscordUserId" as "discordUserId",
-        reg."id" as "characterId"
-      FROM "RaidCompletion" rc
-      INNER JOIN "RegisterCharacter" reg ON rc."characterId" = reg.id
-      WHERE reg."characterName" = ${characterName}
-        AND rc."raidDate" = ${queryDate}::date
-      ORDER BY rc."raidType", reg."registerDiscordUserId"
-    `;
+    const completions = await prisma.$queryRawTyped(
+      getCharacterRaidCompletions(characterName, dateStr)
+    );
 
     if (completions.length === 0) {
       await interaction.reply({
