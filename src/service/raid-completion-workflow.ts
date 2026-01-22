@@ -44,7 +44,8 @@ export async function startRaidCompletionWorkflow(
   interaction: ChatInputCommandInteraction | ButtonInteraction,
   userId: string,
   requireDateSelection: boolean = false,
-  skipToCompletion: boolean = false
+  skipToCompletion: boolean = false,
+  overrideEvidenceMessageId?: string
 ): Promise<void> {
   // Initialize session
   sessions.set(userId, {
@@ -52,7 +53,7 @@ export async function startRaidCompletionWorkflow(
     completedBothRaids: skipToCompletion ? true : false,
     completedAllCharacters: skipToCompletion ? true : false,
     step: requireDateSelection ? 'date_selection' : 'initial',
-    evidenceMessageId: interaction instanceof ButtonInteraction ? interaction.message.reference?.messageId : undefined,
+    evidenceMessageId: overrideEvidenceMessageId || (interaction instanceof ButtonInteraction ? interaction.message.reference?.messageId : undefined),
     messageId: interaction instanceof ButtonInteraction ? interaction.message.id : undefined,
     requireDateSelection,
   });
@@ -523,17 +524,16 @@ export async function completeRaidTracking(
       return;
     }
 
-    await interaction.update({
-      content: `記錄完成.`,
-      components: [],
-    });
 
-    if (session.messageId) {
-      await interaction.channel?.messages.fetch(session.messageId).then((message) => {
-        message.edit({
-          content: `記錄完成.`,
-          components: [],
-        });
+    if (session.messageId && interaction.channel) {
+      const message = await interaction.channel.messages.fetch(session.messageId);
+
+      if (interaction.message.reference?.messageId) {
+        await message.delete();
+      }
+
+      await (interaction.channel as TextChannel).send({
+        content: `<@${session.userId}> 已完成記錄.`,
       });
     }
 

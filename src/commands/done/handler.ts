@@ -10,7 +10,7 @@ import {
   startRaidCompletionWorkflow,
   handleRaidCompletionButton,
 } from '../../service/raid-completion-workflow';
-import { handleStartRaidWorkflowAllCharsYes } from '../../service/image-submission';
+import { handleStartRaidWorkflowAllCharsYes, handleCompleteAllFromDetection } from '../../service/image-submission';
 
 export async function handleDoneCommand(
   interaction: ChatInputCommandInteraction
@@ -66,6 +66,8 @@ export function handleDoneInteraction(
       return handleDoneButton(interaction);
     } else if (customId.startsWith('start_raid_workflow_allchars_yes_')) {
       return handleStartRaidWorkflowAllCharsYes(interaction);
+    } else if (customId.startsWith('complete_all_from_detection_')) {
+      return handleCompleteAllFromDetection(interaction);
     } else if (customId.startsWith('start_raid_workflow_')) {
       return handleStartRaidWorkflow(interaction);
     }
@@ -94,6 +96,7 @@ export function matchesDoneInteraction(
     return (
       customId.startsWith('done_') ||
       customId.startsWith('start_raid_workflow_allchars_yes_') ||
+      customId.startsWith('complete_all_from_detection_') ||
       customId.startsWith('start_raid_workflow_')
     );
   }
