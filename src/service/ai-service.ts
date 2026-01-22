@@ -1,7 +1,14 @@
+import { getIncompleteCharacters } from "./character-service";
+
 interface RaidProgress {
   raid: string;
   target: number;
   completed: number;
+}
+
+export interface CharacterDetectionResult {
+  detectedCharacter: string[];
+  detectedDate: string | null;
 }
 
 interface AIApiRequest {
@@ -120,6 +127,85 @@ export async function analyzeRaidImage(imageUrl: string): Promise<RaidProgress[]
   const textContent = data.content?.[0]?.text;
   if (textContent) {
     return JSON.parse(textContent) as RaidProgress[];
+  }
+
+  throw new Error('Invalid response format from AI API');
+}
+
+export async function detectCharactersAndDate(imageUrls: string[], raidDate: Date): Promise<CharacterDetectionResult> {
+  const apiKey = process.env.AI_API_KEY;
+  const apiUrl = process.env.AI_API_URL;
+
+  if (!apiKey || !apiUrl) {
+    throw new Error('AI_API_KEY or AI_API_URL is not set in environment variables');
+  }
+
+  // Get list of characters who haven't completed all raids today
+  const whitelistedCharacters = await getIncompleteCharacters(raidDate);
+
+  const requestBody: AIApiRequest = {
+    max_tokens: 10000,
+    messages: [
+      {
+        role: 'user',
+        content: imageUrls.map(url => ({
+          type: 'image',
+          source: {
+            type: 'url',
+            url,
+          },
+        })),
+      },
+    ],
+    output_format: {
+      type: 'json_schema',
+      schema: {
+        type: 'object',
+        properties: {
+          detectedCharacter: {
+            type: 'array',
+            description: 'A list of all whitelisted character names detected in the image. Return an empty array if no names are found.',
+            items: {
+              type: 'string',
+            },
+          },
+          detectedDate: {
+            type: ['string', 'null'],
+            format: 'date-time',
+            description: 'The date string detected in the image. Return null if no date string is detected in the image. If multiple dates are detected, use the one written in yellow text.',
+          },
+        },
+        required: ['detectedCharacter'],
+        additionalProperties: false,
+      },
+    },
+    model: 'claude-opus-4-5-20251101',
+  };
+
+  const systemPrompt = `Detect all date string and character string in the image. Only the following whitelisted character name should be output if detected in the image: \n${whitelistedCharacters.join('\n')}`;
+
+  const response = await fetch(apiUrl, {
+    method: 'POST',
+    headers: {
+      'X-Api-Key': apiKey,
+      'anthropic-beta': 'structured-outputs-2025-11-13',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      ...requestBody,
+      system: systemPrompt,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`AI API request failed: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json() as AIApiResponse;
+
+  const textContent = data.content?.[0]?.text;
+  if (textContent) {
+    return JSON.parse(textContent) as CharacterDetectionResult;
   }
 
   throw new Error('Invalid response format from AI API');
