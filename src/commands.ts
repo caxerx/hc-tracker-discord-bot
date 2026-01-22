@@ -40,6 +40,21 @@ const commands = [
   new SlashCommandBuilder()
     .setName('lod')
     .setDescription('顯示接下來 24 小時的 LoD 時間表'),
+  new SlashCommandBuilder()
+    .setName('rename')
+    .setDescription('重新命名你的角色')
+    .addStringOption(option =>
+      option
+        .setName('old_character_name')
+        .setDescription('舊的角色名稱')
+        .setRequired(true)
+    )
+    .addStringOption(option =>
+      option
+        .setName('new_character_name')
+        .setDescription('新的角色名稱')
+        .setRequired(true)
+    ),
 ];
 
 export const registeredCommands: RESTPostAPIApplicationCommandsResult[] = []

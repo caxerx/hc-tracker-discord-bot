@@ -15,7 +15,7 @@ import { prisma } from '../../db';
 import { getRaidCompletionReport } from '../../generated/prisma/sql';
 import { RaidType } from '../../generated/prisma/enums';
 import { addDays, format } from 'date-fns';
-import { getUtcToday } from '../../utils/date';
+import { getServerToday } from '../../utils/date';
 
 interface ReportSessionData {
   userId: string;
@@ -46,7 +46,7 @@ async function showDateSelection(
 ): Promise<void> {
   // Generate last 7 days for selection
   const dates: { label: string; value: string }[] = [];
-  const today = getUtcToday();
+  const today = getServerToday();
 
   for (let i = 0; i < 7; i++) {
     const date = addDays(today, -i);

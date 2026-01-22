@@ -19,7 +19,7 @@ import { RaidType } from '../generated/prisma/enums';
 import { regCommandMention } from '../commands';
 import { addDays, format, startOfDay } from 'date-fns';
 import { TZDate } from '@date-fns/tz';
-import { getUtcToday } from '../utils/date';
+import { getServerToday } from '../utils/date';
 
 export interface SessionData {
   userId: string;
@@ -487,7 +487,7 @@ export async function completeRaidTracking(
 ): Promise<void> {
   try {
     // Use selected date if available, otherwise use raidDate
-    const raidDate = session.selectedDate || getUtcToday();
+    const raidDate = session.selectedDate || getServerToday();
 
     let characterIds: string[] | null = null;
 

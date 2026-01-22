@@ -11,6 +11,7 @@ import { handleLodInteraction, matchesLodInteraction } from '../commands/lod/han
 import { handleReportInteraction, matchesReportInteraction } from '../commands/report/handler';
 import { handleWeeklyReportInteraction, matchesWeeklyReportInteraction } from '../commands/weekly-report/handler';
 import { handleMonthlyReportInteraction, matchesMonthlyReportInteraction } from '../commands/monthly-report/handler';
+import { handleRenameInteraction, matchesRenameInteraction } from '../commands/rename/handler';
 
 // Commands allowed in submission channels
 const allowedInSubmissionChannels = new Set(['query', 'reg', 'done']);
@@ -42,6 +43,7 @@ const commandHandlers: CommandHandler[] = [
   createHandler(matchesReportInteraction, handleReportInteraction),
   createHandler(matchesWeeklyReportInteraction, handleWeeklyReportInteraction),
   createHandler(matchesMonthlyReportInteraction, handleMonthlyReportInteraction),
+  createHandler(matchesRenameInteraction, handleRenameInteraction),
 ];
 
 async function handleInteraction(interaction: Interaction): Promise<void> {

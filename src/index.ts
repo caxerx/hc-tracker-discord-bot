@@ -9,6 +9,7 @@ import { format } from 'date-fns';
 import { TZDate } from '@date-fns/tz';
 import { ChannelType } from './generated/prisma/enums';
 import { sendDailyNotification } from './handlers/dailyNotificationHandler';
+import { initDailyResetCron } from './service/daily-reset';
 
 // Create a new client instance
 const client = new Client({
@@ -34,15 +35,7 @@ client.once(Events.ClientReady, async (readyClient) => {
   console.log('Server Time: ', format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
   console.log('UTC Time: ', format(new TZDate(new Date(), "UTC"), 'yyyy-MM-dd HH:mm:ss'));
 
-  new Cron('0 0 * * *', async () => {
-    console.log('Daily Notification: ');
-    console.log('Server Time: ', format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
-    console.log('UTC Time: ', format(new TZDate(new Date(), "UTC"), 'yyyy-MM-dd HH:mm:ss'));
-
-    await channelSettingService.reload();
-    const channelIds = channelSettingService.getAllChannelWithType(ChannelType.DailyNotification);
-    await sendDailyNotification(client, channelIds);
-  });
+  initDailyResetCron(client);
 });
 
 // Register event handlers

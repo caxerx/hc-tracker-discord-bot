@@ -3,13 +3,13 @@
 
 import { addDays, format } from "date-fns";
 import { prisma } from "../db";
-import { getUtcToday } from "../utils/date";
+import { getServerToday } from "../utils/date";
 import type { Client, TextChannel } from "discord.js";
 
 export async function buildDailyNotificationMessage(): Promise<string> {
     const today = format(new Date(), 'yyyy-MM-dd');
 
-    const utcYesterday = format(addDays(getUtcToday(), -1), 'yyyy-MM-dd');
+    const utcYesterday = format(addDays(getServerToday(), -1), 'yyyy-MM-dd');
 
     // Count unique Discord users who have raid completions yesterday
     const userCountResult = await prisma.$queryRaw<[{ count: bigint }]>`
