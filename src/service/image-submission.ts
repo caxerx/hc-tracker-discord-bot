@@ -92,10 +92,14 @@ export async function handleImageSubmissionMessage(message: Message, requireDate
                                 .setStyle(ButtonStyle.Primary)
                         );
 
-                    await (message.channel as TextChannel)?.send({
+                    const detectionDcMessage = await (message.channel as TextChannel)?.send({
                         content: detectionMessage,
                         components: [detectionRow],
                     });
+
+                    setTimeout(async () => {
+                        await detectionDcMessage.delete();
+                    }, 5 * 60 * 1000);
                 }
             }
         } catch (error) {
