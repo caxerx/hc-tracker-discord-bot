@@ -1,12 +1,15 @@
-FROM oven/bun:1-alpine
+FROM node:24-alpine
 
 WORKDIR /app
 
+# Enable pnpm via Corepack
+RUN corepack enable
+
 # Copy package files
-COPY package.json bun.lockb* ./
+COPY package.json pnpm-lock.yaml* ./
 
 # Install dependencies
-RUN bun install
+RUN pnpm install
 
 # Copy source code
 COPY . .
@@ -15,4 +18,4 @@ COPY . .
 EXPOSE 3000
 
 # Run in development mode with hot reload
-CMD ["bun", "--watch", "src/index.ts"]
+CMD ["pnpm", "dev"]

@@ -1,8 +1,9 @@
-import { ChannelType } from '../generated/prisma/client';
+import { ChannelType, Language } from '../generated/prisma/client';
 import { prisma } from '../db';
 
 class ChannelSettingService {
-  private channelMap: Map<string, Set<ChannelType>> = new Map();
+  private channelTypeMap: Map<string, Set<ChannelType>> = new Map();
+  private channelLanguageMap: Map<string, Language> = new Map();
   private isLoaded = false;
 
   /**
@@ -12,14 +13,21 @@ class ChannelSettingService {
   async load(): Promise<void> {
     const channelSettings = await prisma.channelSetting.findMany();
 
-    this.channelMap.clear();
+    this.channelTypeMap.clear();
 
     for (const setting of channelSettings) {
-      if (!this.channelMap.has(setting.channelId)) {
-        this.channelMap.set(setting.channelId, new Set<ChannelType>());
+      if (!this.channelTypeMap.has(setting.channelId)) {
+        this.channelTypeMap.set(setting.channelId, new Set<ChannelType>());
       }
-      this.channelMap.get(setting.channelId)!.add(setting.channelType);
+      this.channelTypeMap.get(setting.channelId)!.add(setting.channelType);
+
+      if (!this.channelLanguageMap.has(setting.channelId)) {
+        this.channelLanguageMap.set(setting.channelId, setting.channelLanguage);
+      } else {
+        console.warn(`Channel ${setting.channelId} already has a language setting. Skipping...`);
+      }
     }
+
 
     this.isLoaded = true;
   }
@@ -36,7 +44,7 @@ class ChannelSettingService {
    * Checks if a channel has a specific channel type configured
    */
   hasChannelType(channelId: string, channelType: ChannelType): boolean {
-    const channelTypes = this.channelMap.get(channelId);
+    const channelTypes = this.channelTypeMap.get(channelId);
     return channelTypes ? channelTypes.has(channelType) : false;
   }
 
@@ -44,12 +52,16 @@ class ChannelSettingService {
    * Gets all channel types for a specific channel
    */
   getChannelTypes(channelId: string): ChannelType[] {
-    const channelTypes = this.channelMap.get(channelId);
+    const channelTypes = this.channelTypeMap.get(channelId);
     return channelTypes ? Array.from(channelTypes) : [];
   }
 
   getAllChannelWithType(channelType: ChannelType): string[] {
-    return Array.from(this.channelMap.entries()).filter(([_, channelTypes]) => channelTypes.has(channelType)).map(([channelId, _]) => channelId);
+    return Array.from(this.channelTypeMap.entries()).filter(([_, channelTypes]) => channelTypes.has(channelType)).map(([channelId, _]) => channelId);
+  }
+
+  getChannelLanguage(channelId: string): Language {
+    return this.channelLanguageMap.get(channelId) ?? Language.English;
   }
 
   /**
@@ -63,7 +75,7 @@ class ChannelSettingService {
    * Gets all configured channel IDs
    */
   getAllChannelIds(): string[] {
-    return Array.from(this.channelMap.keys());
+    return Array.from(this.channelTypeMap.keys());
   }
 }
 

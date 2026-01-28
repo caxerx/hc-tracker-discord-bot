@@ -35,6 +35,11 @@ const en = {
         clickConfirmToSaveOrChangeSelection: 'Click confirm to save, or change your selection.',
         noCharacterSelected: 'No characters selected. Please select again.',
         userHasCompletedRaidTracking: '{0} has completed recording.',
+        recordPartialCharacters: 'Record partial characters',
+        completeAllCharactersHC: 'Complete all characters HC',
+        otherMembersCharactersDetected: 'Other members\' characters detected: {0}',
+        detectedMemberNotice: 'If you confirm you are included in the image, you can click the button below to record all character completions. If you have not completed all characters HC, please submit individually.',
+        noticeOfNotCompleted: '## Please note, recording is not complete \nPlease select the content to record:',
     }
 };
 

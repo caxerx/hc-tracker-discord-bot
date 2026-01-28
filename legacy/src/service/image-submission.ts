@@ -3,22 +3,34 @@ import { detectCharactersAndDate } from './ai-service';
 import { getCharacterOwners, getIncompleteUsers } from './character-service';
 import { getServerToday } from '../utils/date';
 import { startRaidCompletionWorkflow } from "./raid-completion-workflow";
+import { fallbackT as t } from '../i18n';
+import { generateSessionId, type DetectionWorkflowSession, type RaidWorkflowSession } from "../utils/interaction-session";
+import { setSession } from "./redis";
 
 export async function handleImageSubmissionMessage(message: Message, requireDateSelection: boolean = false): Promise<void> {
+    const sessionId = generateSessionId();
+    const session: RaidWorkflowSession = {
+        sessionId,
+        authorId: message.author.id,
+        messageId: message.id,
+        sessionType: 'raid_workflow',
+    };
+    await setSession(session);
+
     const row = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
             new ButtonBuilder()
-                .setCustomId(`start_raid_workflow_${message.author.id}_${requireDateSelection}`)
-                .setLabel('記錄部份角色')
+                .setCustomId(`${sessionId}|start_partial`)
+                .setLabel(t('raidCompletionWorkflow.recordPartialCharacters'))
                 .setStyle(ButtonStyle.Primary)
         ).addComponents(
             new ButtonBuilder()
-                .setCustomId(`start_raid_workflow_allchars_yes_${message.author.id}_${requireDateSelection}`)
-                .setLabel('完成所有角色的HC')
+                .setCustomId(`${sessionId}|start_all`)
+                .setLabel(t('raidCompletionWorkflow.completeAllCharactersHC'))
                 .setStyle(ButtonStyle.Primary)
         );
 
-    const contentMessage = '## 請注意, 記錄尚未完成 \n請選擇要記錄的內容:';
+    const contentMessage = t('raidCompletionWorkflow.noticeOfNotCompleted');
 
     await message.reply({
         content: contentMessage,
@@ -79,16 +91,28 @@ export async function handleImageSubmissionMessage(message: Message, requireDate
                 let detectionMessage = '';
                 if (usersToTag.size > 0) {
                     const userTags = Array.from(usersToTag).map(userId => `<@${userId}>`).join(' ');
-                    detectionMessage += `偵測到其他成員的角色: ${detectedOtherCharacters.join(', ')}\n${userTags}\n若你確定你包含在此圖片內, 你可以點擊以下按鈕去記錄所有角色的完成. 若你未完成所有角色的HC, 請個別提交記錄.`;
+                    detectionMessage += t('raidCompletionWorkflow.otherMembersCharactersDetected', [detectedOtherCharacters.join(', ')]);
+                    detectionMessage += '\n';
+                    detectionMessage += userTags;
+                    detectionMessage += '\n';
+                    detectionMessage += t('raidCompletionWorkflow.detectedMemberNotice');
                 }
 
                 // Send detection results in a separate message with button
                 if (detectionMessage && message.channel.isTextBased()) {
+                    const sessionId = generateSessionId();
+                    const detectionSession: DetectionWorkflowSession = {
+                        sessionId,
+                        messageId: message.id,
+                        sessionType: 'detection_workflow',
+                    };
+                    await setSession(detectionSession);
+
                     const detectionRow = new ActionRowBuilder<ButtonBuilder>()
                         .addComponents(
                             new ButtonBuilder()
-                                .setCustomId(`complete_all_from_detection_${message.id}`)
-                                .setLabel('完成所有角色的HC')
+                                .setCustomId(`${detectionSession.sessionId}|complete_all`)
+                                .setLabel(t('raidCompletionWorkflow.completeAllCharactersHC'))
                                 .setStyle(ButtonStyle.Primary)
                         );
 
@@ -118,7 +142,7 @@ export async function handleStartRaidWorkflowAllCharsYes(interaction: ButtonInte
 
     if (interaction.user.id !== originalMessage?.author?.id) {
         await interaction.reply({
-            content: '你不能使用這個按鈕.',
+            content: t('general.youCannotUseThisButton'),
             flags: MessageFlags.Ephemeral,
         });
         return;
@@ -150,7 +174,7 @@ export async function handleCompleteAllFromDetection(interaction: ButtonInteract
     // Verify the user who clicked is in the tagged list
     if (!taggedUserIds.has(interaction.user.id)) {
         await interaction.reply({
-            content: '你不能使用這個按鈕.',
+            content: t('general.youCannotUseThisButton'),
             flags: MessageFlags.Ephemeral,
         });
         return;

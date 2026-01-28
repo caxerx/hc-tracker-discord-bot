@@ -4,12 +4,10 @@ import { registerMessageHandler } from './handlers/messageHandler';
 import { registerProgressCheckHandler } from './handlers/progressCheckHandler';
 import { handlerInteraction } from './handlers/interactionHandler';
 import { channelSettingService } from './service/channel-setting';
-import { Cron } from 'croner';
 import { format } from 'date-fns';
 import { TZDate } from '@date-fns/tz';
-import { ChannelType } from './generated/prisma/enums';
-import { sendDailyNotification } from './handlers/dailyNotificationHandler';
 import { initDailyResetCron } from './service/daily-reset';
+import redisClient from './service/redis';
 
 // Create a new client instance
 const client = new Client({
@@ -22,7 +20,8 @@ const client = new Client({
 
 // When the client is ready, run this code (only once)
 client.once(Events.ClientReady, async (readyClient) => {
-  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+  await redisClient.connect();
+  console.log('Redis connected');
 
   // Load channel settings
   console.log('Loading channel settings...');
@@ -31,6 +30,8 @@ client.once(Events.ClientReady, async (readyClient) => {
 
   // Register slash commands
   await registerCommands();
+
+  console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 
   console.log('Server Time: ', format(new Date(), 'yyyy-MM-dd HH:mm:ss'));
   console.log('UTC Time: ', format(new TZDate(new Date(), "UTC"), 'yyyy-MM-dd HH:mm:ss'));

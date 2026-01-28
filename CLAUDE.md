@@ -7,7 +7,6 @@ This is a Discord bot designed to manage family members' raid completion counts.
 ## Tech Stack
 
 ### Runtime & Language
-- **Bun**: Fast all-in-one JavaScript runtime
 - **TypeScript**: Type-safe development with strict mode enabled
 - **Node.js**: ESNext target with modern JavaScript features
 
@@ -21,7 +20,6 @@ This is a Discord bot designed to manage family members' raid completion counts.
 ### Infrastructure
 - **Docker**: Containerized deployment
 - **Docker Compose**: Multi-container orchestration
-- **PM2**: Process management (via ecosystem.config.js)
 
 ### Development Tools
 - **TypeScript 5**: Static type checking with bundler module resolution

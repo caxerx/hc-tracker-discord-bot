@@ -35,6 +35,11 @@ const zh = {
         clickConfirmToSaveOrChangeSelection: '點擊確認保存, 或更改你的選擇.',
         noCharacterSelected: '沒有選擇角色. 請重新選擇.',
         userHasCompletedRaidTracking: '{0} 已完成記錄.',
+        recordPartialCharacters: '記錄部份角色',
+        completeAllCharactersHC: '完成所有角色的HC',
+        otherMembersCharactersDetected: '偵測到其他成員的角色: {0}',
+        detectedMemberNotice: '若你確定你包含在此圖片內, 你可以點擊以下按鈕去記錄所有角色的完成. 若你未完成所有角色的HC, 請個別提交記錄.',
+        noticeOfNotCompleted: '## 請注意, 記錄尚未完成 \n請選擇要記錄的內容:',
     }
 };
 
