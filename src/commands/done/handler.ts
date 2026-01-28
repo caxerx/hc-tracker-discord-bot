@@ -4,6 +4,7 @@ import type {
   StringSelectMenuInteraction,
 } from 'discord.js';
 import { MessageFlags } from 'discord.js';
+import { fallbackT as t } from '../../i18n';
 
 type AnyInteraction = ChatInputCommandInteraction | ButtonInteraction | StringSelectMenuInteraction;
 import {
@@ -36,7 +37,7 @@ export async function handleStartRaidWorkflow(
 
   if (interaction.user.id !== originalMessage?.author?.id) {
     await interaction.reply({
-      content: '你不能使用這個按鈕.',
+      content: t('general.youCannotUseThisButton'),
       flags: MessageFlags.Ephemeral,
     });
     return;

@@ -55,12 +55,19 @@ enum ChannelType {
   TodaySubmission
   OtherDateSubmission
   DailyNotification
+  BotCommand
+}
+
+enum Language {
+  Chinese
+  English
 }
 
 model ChannelSetting {
-  id          String      @id @default(uuid())
-  channelId   String
-  channelType ChannelType
+  id              String      @id @default(uuid())
+  channelId       String
+  channelType     ChannelType
+  channelLanguage Language    @default(English)
 
   @@unique([channelId, channelType])
 }

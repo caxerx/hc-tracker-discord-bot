@@ -4,8 +4,6 @@ import {
   ButtonBuilder,
   ButtonStyle,
   StringSelectMenuBuilder,
-  Message,
-  User,
   TextChannel,
   type Interaction,
 } from 'discord.js';
@@ -20,6 +18,7 @@ import { regCommandMention } from '../commands';
 import { addDays, format, startOfDay } from 'date-fns';
 import { TZDate } from '@date-fns/tz';
 import { getServerToday } from '../utils/date';
+import { fallbackT as t } from '../i18n';
 
 export interface SessionData {
   userId: string;
@@ -86,7 +85,7 @@ export async function startRaidCompletionWorkflow(
   );
 
   await interaction.reply({
-    content: '你已經完成Kirollas + Carno了嗎?',
+    content: t('raidCompletionWorkflow.youHaveCompletedBothRaids'),
     components: [row],
     flags: MessageFlags.Ephemeral,
   });
@@ -104,7 +103,7 @@ async function askDateSelection(
     const date = addDays(today, -i);
     const dateStr = format(date, 'yyyy-MM-dd');
 
-    const label = i === 0 ? `今天 (${dateStr})` : i === 1 ? `昨天 (${dateStr})` : dateStr;
+    const label = i === 0 ? t('raidCompletionWorkflow.today', [dateStr]) : i === 1 ? t('raidCompletionWorkflow.yesterday', [dateStr]) : dateStr;
 
     dates.push({
       label,
@@ -115,12 +114,12 @@ async function askDateSelection(
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`done_date_select_${userId}`)
-      .setPlaceholder('選擇日期')
+      .setPlaceholder(t('raidCompletionWorkflow.selectDate'))
       .addOptions(dates)
   );
 
   await interaction.reply({
-    content: '請選擇Raid完成日期:',
+    content: t('raidCompletionWorkflow.pleaseSelectRaidDate'),
     components: [row],
     flags: MessageFlags.Ephemeral,
   });
@@ -142,7 +141,7 @@ async function askBothRaidsCompleted(
   );
 
   await interaction.update({
-    content: '你已經完成Kirollas + Carno了嗎?',
+    content: t('raidCompletionWorkflow.youHaveCompletedBothRaids'),
     components: [row],
   });
 }
@@ -155,7 +154,7 @@ export async function handleRaidCompletionButton(
 
   if (!session) {
     await interaction.reply({
-      content: '對話已過期. 請重新開始.',
+      content: t('general.sessionExpired'),
       flags: MessageFlags.Ephemeral,
     });
     return;
@@ -195,7 +194,7 @@ export async function handleRaidCompletionButton(
       const selectedDateStr = interaction.values[0];
       if (!selectedDateStr) {
         await interaction.update({
-          content: '請選擇一個日期.',
+          content: t('raidCompletionWorkflow.pleaseSelectValidDate'),
           components: [],
         });
         return;
@@ -232,23 +231,23 @@ async function askWhichRaid(
   const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`done_raid_select_${session.userId}`)
-      .setPlaceholder('選擇你完成的Raid')
+      .setPlaceholder(t('raidCompletionWorkflow.selectCompletedRaid'))
       .addOptions([
         {
-          label: 'Kirollas',
+          label: t('raidType.kirollas.simpleName'),
           value: RaidType.Kirollas,
-          description: '靈王',
+          description: t('raidType.kirollas.originalName'),
         },
         {
-          label: 'Carno',
+          label: t('raidType.carno.simpleName'),
           value: RaidType.Carno,
-          description: '獸王',
+          description: t('raidType.carno.originalName'),
         },
       ])
   );
 
   await interaction.update({
-    content: '你完成了哪個Raid?',
+    content: t('raidCompletionWorkflow.whichRaidDidYouComplete'),
     components: [row],
   });
 }
@@ -269,7 +268,7 @@ async function askAllCharactersCompleted(
   );
 
   await interaction.update({
-    content: '你完成了所有角色的HC嗎?',
+    content: t('raidCompletionWorkflow.haveYouCompletedAllCharacters'),
     components: [row],
   });
 }
@@ -291,7 +290,7 @@ async function askCharacterSelection(
 
     if (characters.length === 0) {
       await interaction.update({
-        content: `你沒有註冊任何角色. 請先使用 ${regCommandMention} 綁定角色.`,
+        content: t('raidCompletionWorkflow.youHaveNoCharactersRegistered', [regCommandMention]),
         components: [],
       });
       sessions.delete(session.userId);
@@ -301,14 +300,14 @@ async function askCharacterSelection(
     const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId(`done_char_select_${session.userId}`)
-        .setPlaceholder('選擇你完成的角色')
+        .setPlaceholder(t('raidCompletionWorkflow.pleaseSelectCompletedCharacters'))
         .setMinValues(1)
         .setMaxValues(Math.min(characters.length, 25))
         .addOptions(
           characters.map((char) => ({
             label: char.characterName,
             value: char.id,
-            description: `已選擇: ${char.characterName}`,
+            description: t('raidCompletionWorkflow.selectedCharacters', [char.characterName]),
           }))
         )
     );
@@ -322,13 +321,13 @@ async function askCharacterSelection(
     );
 
     await interaction.update({
-      content: '選擇你完成的角色, 然後點擊確認:',
+      content: t('raidCompletionWorkflow.selectCharacterAndConfirm'),
       components: [selectRow, buttonRow],
     });
   } catch (error) {
     console.error('Error fetching characters:', error);
     await interaction.update({
-      content: '發生錯誤. <@161038123529142272>',
+      content: t('general.errorOccurred'),
       components: [],
     });
     sessions.delete(session.userId);
@@ -364,14 +363,14 @@ async function showCharacterConfirmation(
     const selectRow = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId(`done_char_select_${session.userId}`)
-        .setPlaceholder('選擇你完成的角色')
+        .setPlaceholder(t('raidCompletionWorkflow.pleaseSelectCompletedCharacters'))
         .setMinValues(1)
         .setMaxValues(Math.min(allCharacters.length, 25))
         .addOptions(
           allCharacters.map((char) => ({
             label: char.characterName,
             value: char.id,
-            description: `已選擇: ${char.characterName}`,
+            description: t('raidCompletionWorkflow.selectedCharacters', [char.characterName]),
           }))
         )
     );
@@ -379,19 +378,19 @@ async function showCharacterConfirmation(
     const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
         .setCustomId(`done_chars_confirm_${session.userId}`)
-        .setLabel('確認')
+        .setLabel(t('general.confirm'))
         .setStyle(ButtonStyle.Success)
         .setDisabled(false)
     );
 
     await interaction.update({
-      content: `已選擇: ${characterNames}\n點擊確認保存, 或更改你的選擇.`,
+      content: [t('raidCompletionWorkflow.selectedCharacters', [characterNames]), t('raidCompletionWorkflow.clickConfirmToSaveOrChangeSelection')].join('\n'),
       components: [selectRow, buttonRow],
     });
   } catch (error) {
     console.error('Error showing confirmation:', error);
     await interaction.update({
-      content: '發生錯誤. <@161038123529142272>',
+      content: t('general.errorOccurred'),
       components: [],
     });
     sessions.delete(session.userId);
@@ -498,7 +497,7 @@ export async function completeRaidTracking(
     } else {
       if (!session.selectedCharacterIds || session.selectedCharacterIds.length === 0) {
         await interaction.update({
-          content: '沒有選擇角色. 請重新選擇.',
+          content: t('raidCompletionWorkflow.noCharacterSelected'),
           components: [],
         });
         sessions.delete(session.userId);
@@ -517,7 +516,7 @@ export async function completeRaidTracking(
 
     if (recordCount === 0) {
       await interaction.update({
-        content: `你沒有註冊任何角色. 請先使用 ${regCommandMention} 綁定角色.`,
+        content: t('raidCompletionWorkflow.youHaveNoCharactersRegistered', [regCommandMention]),
         components: [],
       });
       sessions.delete(session.userId);
@@ -533,7 +532,7 @@ export async function completeRaidTracking(
       }
 
       await (interaction.channel as TextChannel).send({
-        content: `<@${session.userId}> 已完成記錄.`,
+        content: t('raidCompletionWorkflow.userHasCompletedRaidTracking', [`<@${session.userId}>`]),
       });
     }
 
@@ -541,7 +540,7 @@ export async function completeRaidTracking(
   } catch (error) {
     console.error('Error completing raid tracking:', error);
     await interaction.update({
-      content: '發生錯誤. <@161038123529142272>',
+      content: t('general.errorOccurred'),
       components: [],
     });
 
