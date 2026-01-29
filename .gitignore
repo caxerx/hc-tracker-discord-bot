@@ -1,43 +1,38 @@
-# dependencies (bun install)
+# dependencies
 node_modules
 
-# output
+# build output
+build
 out
 dist
-*.tgz
 
-# code coverage
-coverage
-*.lcov
+# commandkit
+.commandkit
+dist
+compiled-commandkit.config.mjs
 
-# logs
+# env
+**/*.env*
+!**/*.env.example*
+
+# logging
 logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
 
-# dotenv environment variable files
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
+# yarn v2+
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
-# caches
-.eslintcache
-.cache
-*.tsbuildinfo
+# other
+**/*.DS_Store
+.temp-example
 
-# IntelliJ based IDEs
-.idea
-
-# Finder (MacOS) folder config
-.DS_Store
-
-/src/generated/prisma
-
-/generated/prisma
-
-/src/generated/prisma
-
-meta
-data
+src/generated/**/*

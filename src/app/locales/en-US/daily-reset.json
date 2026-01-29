@@ -1,0 +1,4 @@
+{
+    "daily-reset": "HC daily missions have been reset, yesterday there were {{userCount}} people with {{characterCount}} characters completed the task.",
+    "today-is": "## Today is {{today}}"
+}

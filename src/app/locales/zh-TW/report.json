@@ -1,0 +1,30 @@
+{
+  "$command": {
+    "name": "report",
+    "description": "生成Raid完成紀錄報告"
+  },
+  "report-generation-action-message": "請選擇報告類型。",
+  "report-type": {
+    "yesterday": "昨天 ({{date}})",
+    "today": "今天 ({{date}})",
+    "last-week": "上週 ({{startDate}} 至 {{endDate}})",
+    "this-week": "本週 ({{startDate}} 至 {{endDate}})",
+    "daily": "每日",
+    "weekly": "每周",
+    "monthly": "每月"
+  },
+  "date": {
+    "week-range": "{{startDate}} 至 {{endDate}}",
+    "today-with-date": "今天 ({{date}})",
+    "yesterday-with-date": "昨天 ({{date}})"
+  },
+  "generate-report": "生成報告",
+  "completed-characters": "已完成角色",
+  "not-completed-characters": "未完成角色",
+  "generated-by": "`由 @{{userName}} 於 {{currentTime}} ({{timezoneName}}) 生成`",
+  "daily-report-title": "## HC 完成紀錄報告: {{raidType}} ({{raidDate}})",
+  "range-report-title": "## HC 完成紀錄報告: {{raidType}} ({{raidStartDate}} 至 {{raidEndDate}})",
+  "weekly-completed-characters": "已完成角色 (總完成次數: {{completionCount}})",
+  "no-completed-characters": "沒有已完成角色",
+  "all-characters-completed": "所有角色已完成"
+}

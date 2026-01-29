@@ -1,27 +1,40 @@
 {
-  "name": "hc-tracker-discord-bot",
-  "module": "index.ts",
+  "name": "commandkit-basic-ts",
+  "description": "A CommandKit project using TypeScript",
+  "version": "0.1.0",
   "type": "module",
   "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/pg": "^8.16.0",
-    "prisma": "^7.2.0"
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "commandkit dev",
+    "build": "commandkit build",
+    "start": "commandkit start",
+    "generate": "prisma generate --sql",
+    "env-up": "sudo docker compose --profile dev up -d"
   },
-  "peerDependencies": {
-    "typescript": "^5"
+  "devDependencies": {
+    "@types/node": "^24.0.10",
+    "@types/pg": "^8.16.0",
+    "prisma": "^7.3.0",
+    "typescript": "^5.8.3"
   },
   "dependencies": {
+    "@commandkit/cache": "1.2.0-rc.13",
+    "@commandkit/devtools": "1.2.0-rc.13",
+    "@commandkit/i18n": "1.2.0-rc.13",
+    "@commandkit/tasks": "1.2.0-rc.13",
+    "@commandkit/workflow": "dev",
     "@date-fns/tz": "^1.4.1",
-    "@prisma/adapter-pg": "^7.2.0",
-    "@prisma/client": "^7.2.0",
-    "croner": "^9.1.0",
+    "@prisma/adapter-pg": "^7.3.0",
+    "@prisma/client": "^7.3.0",
+    "bullmq": "^5.67.2",
+    "commandkit": "1.2.0-rc.13",
     "date-fns": "^4.1.0",
     "discord.js": "^14.25.1",
-    "es-toolkit": "^1.44.0",
-    "pg": "^8.16.3"
-  },
-  "scripts": {
-    "generate": "prisma generate --sql"
+    "dotenv": "^17.2.3",
+    "ioredis": "^5.9.2",
+    "ky": "^1.14.3",
+    "pg": "^8.17.2",
+    "workflow": "4.0.1-beta.12"
   }
 }

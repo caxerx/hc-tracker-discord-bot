@@ -1,0 +1,19 @@
+{
+    "submit-notification": "## 請注意，記錄尚未完成",
+    "select-content": "請選擇要記錄的內容",
+    "record-partial-characters": "記錄部份角色",
+    "complete-all-characters-hc": "完成所有角色的HC",
+    "record-characters-hc": "記錄角色HC",
+    "complete-record-created": "{{user}} 已完成記錄。",
+    "submit-modal": {
+        "title": "提交HC",
+        "date": {
+            "label": "日期",
+            "description": "選擇日期"
+        },
+        "raids": {
+            "label": "Raid",
+            "description": "選擇Raid"
+        }
+    }
+}

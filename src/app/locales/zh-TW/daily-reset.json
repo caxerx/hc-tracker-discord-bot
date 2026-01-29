@@ -1,0 +1,4 @@
+{
+    "daily-reset": "HC 每日任務已重置, 昨天有 {{userCount}} 個人共 {{characterCount}} 個角色完成任務。",
+    "today-is": "## 今天是 {{today}}"
+}

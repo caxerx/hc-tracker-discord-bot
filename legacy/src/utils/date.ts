@@ -13,5 +13,6 @@ export function getServerToday(): TZDate {
     if (hours < 5) {
         return subDays(utcToday, 1);
     }
+
     return utcToday;
 }

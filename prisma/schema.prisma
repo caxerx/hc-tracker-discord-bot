@@ -28,8 +28,21 @@ model RegisterCharacter {
 }
 
 enum RaidType {
+  // A6
+  Zenas
+  Erenia
+
+  // A7
   Kirollas
   Carno
+  Bellia
+  Paimon
+  RevenantPaimon
+
+  // A8
+  Alzanor
+  Valehir
+  Asgobas
 }
 
 model RaidCompletion {
@@ -77,4 +90,12 @@ model CompletedProgress {
   raidName       String   @unique
   completedCount Int
   lastUpdate     DateTime @default(now())
+}
+
+model UserSetting {
+  id            String  @id @default(uuid())
+  discordUserId String  @unique
+  isAdmin       Boolean @default(false)
+
+  @@index([discordUserId])
 }
