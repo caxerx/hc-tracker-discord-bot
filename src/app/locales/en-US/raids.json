@@ -1,42 +1,42 @@
 {
-    "kirollas": {
-        "simpleName": "Kirollas",
-        "originalName": "Twisted Spirit King Kirollas"
-    },
-    "carno": {
-        "simpleName": "Carno",
-        "originalName": "Twisted Beast King Carno"
-    },
-    "zenas": {
-        "simpleName": "Zenas",
-        "originalName": "Zenas"
-    },
-    "erienia": {
-        "simpleName": "Erenia",
-        "originalName": "Erenia"
-    },
-    "bellia": {
-        "simpleName": "Bellia",
-        "originalName": "Demon God Belial"
-    },
-    "paimon": {
-        "simpleName": "Paimon",
-        "originalName": "Evil Overlord Paimon"
-    },
-    "revenantpaimon": {
-        "simpleName": "Revenant Paimon",
-        "originalName": "Revenant Paimon"
-    },
-    "valehir": {
-        "simpleName": "Valehir",
-        "originalName": "Zombie Dragon Valehir"
-    },
-    "alzanor": {
-        "simpleName": "Alzanor",
-        "originalName": "Ice Dragon Alzanor"
-    },
-    "asgobas": {
-        "simpleName": "Asgobas",
-        "originalName": "Weak Asgobas"
-    }
+  "kirollas": {
+    "simpleName": "Kirollas",
+    "originalName": "Twisted Spirit King Kirollas"
+  },
+  "carno": {
+    "simpleName": "Carno",
+    "originalName": "Twisted Beast King Carno"
+  },
+  "zenas": {
+    "simpleName": "Zenas",
+    "originalName": "Zenas"
+  },
+  "erienia": {
+    "simpleName": "Erenia",
+    "originalName": "Erenia"
+  },
+  "bellia": {
+    "simpleName": "Bellia",
+    "originalName": "Demon God Belial"
+  },
+  "paimon": {
+    "simpleName": "Paimon",
+    "originalName": "Evil Overlord Paimon"
+  },
+  "revenantpaimon": {
+    "simpleName": "Revenant Paimon",
+    "originalName": "Revenant Paimon"
+  },
+  "valehir": {
+    "simpleName": "Valehir",
+    "originalName": "Zombie Dragon Valehir"
+  },
+  "alzanor": {
+    "simpleName": "Alzanor",
+    "originalName": "Ice Dragon Alzanor"
+  },
+  "asgobas": {
+    "simpleName": "Asgobas",
+    "originalName": "Weak Asgobas"
+  }
 }

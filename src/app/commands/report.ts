@@ -1,12 +1,16 @@
-import { ReportGenerationActionMessage } from '@/components/report';
-import { getChannelLanguage } from '@/service/channel-setting';
-import { getDiscordLocale } from '@/service/language';
-import { createOrUpdateSession, generateSessionId, type ReportGenerationSession } from '@/service/session';
-import type { ChatInputCommand, CommandData, MessageCommand } from 'commandkit';
-import { MessageFlags } from 'discord.js';
+import { ReportGenerationActionMessage } from "@/components/report";
+import { getChannelLanguage } from "@/service/channel-setting";
+import { getDiscordLocale } from "@/service/language";
+import {
+  createOrUpdateSession,
+  generateSessionId,
+  type ReportGenerationSession,
+} from "@/service/session";
+import type { ChatInputCommand, CommandData, MessageCommand } from "commandkit";
+import { MessageFlags } from "discord.js";
 
 export const command: CommandData = {
-  name: 'report',
+  name: "report",
   description: "Generate a raid completion report",
 };
 
@@ -18,7 +22,7 @@ export const chatInput: ChatInputCommand = async (ctx) => {
   const session: ReportGenerationSession = {
     sessionId,
     actionUserId: ctx.interaction.user.id,
-    sessionType: 'report_generation',
+    sessionType: "report_generation",
     locale: locale,
   };
   await createOrUpdateSession(session);
@@ -27,7 +31,7 @@ export const chatInput: ChatInputCommand = async (ctx) => {
     flags: [MessageFlags.IsComponentsV2, MessageFlags.Ephemeral],
     components: await ReportGenerationActionMessage({
       sessionId,
-    })
+    }),
   });
 
   await createOrUpdateSession({

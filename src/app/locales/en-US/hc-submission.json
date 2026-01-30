@@ -1,23 +1,23 @@
 {
-    "submit-notification": "## Please note, recording is NOT complete yet",
-    "select-content": "Please select the content to record",
-    "record-partial-characters": "Record partial characters",
-    "complete-all-characters-hc": "Complete all characters HC",
-    "record-characters-hc": "Record characters HC",
-    "complete-record-created": "{{user}} has completed recording.",
-    "submit-modal": {
-        "title": "Submit HC",
-        "date": {
-            "label": "Date",
-            "description": "Select the date to record"
-        },
-        "raids": {
-            "label": "Raids",
-            "description": "Select the raids to record"
-        },
-        "characters": {
-            "label": "Characters",
-            "description": "Select the characters to record"
-        }
+  "submit-notification": "## Please note, recording is NOT complete yet",
+  "select-content": "Please select the content to record",
+  "record-partial-characters": "Record partial characters",
+  "complete-all-characters-hc": "Complete all characters HC",
+  "record-characters-hc": "Record characters HC",
+  "complete-record-created": "{{user}} has completed recording.",
+  "submit-modal": {
+    "title": "Submit HC",
+    "date": {
+      "label": "Date",
+      "description": "Select the date to record"
+    },
+    "raids": {
+      "label": "Raids",
+      "description": "Select the raids to record"
+    },
+    "characters": {
+      "label": "Characters",
+      "description": "Select the characters to record"
     }
+  }
 }

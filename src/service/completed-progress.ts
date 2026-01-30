@@ -1,4 +1,4 @@
-import { prisma } from '@/service/db';
+import { prisma } from "@/service/db";
 
 interface RaidData {
   raid: string;
@@ -16,7 +16,7 @@ interface RaidDataWithIncrease extends RaidData {
  * Returns the raid data with the increase indicator.
  */
 export async function updateCompletedProgress(
-  raidData: RaidData[]
+  raidData: RaidData[],
 ): Promise<RaidDataWithIncrease[]> {
   const result: RaidDataWithIncrease[] = [];
 
@@ -60,31 +60,38 @@ export async function updateCompletedProgress(
   return result;
 }
 
-export function formatProgressResponse(raidData: Array<{ raid: string; completed: number; target: number; increased: number }>): string {
+export function formatProgressResponse(
+  raidData: Array<{
+    raid: string;
+    completed: number;
+    target: number;
+    increased: number;
+  }>,
+): string {
   // Find the longest raid name for alignment
-  const maxNameLength = Math.max(...raidData.map(raid => raid.raid.length));
+  const maxNameLength = Math.max(...raidData.map((raid) => raid.raid.length));
 
-  let response = '```\n';
+  let response = "```\n";
   raidData.forEach((raid) => {
     const percentage = (raid.completed / raid.target) * 100;
     const barLength = 20;
     const filledLength = Math.round((percentage / 100) * barLength);
     const emptyLength = barLength - filledLength;
-    const progressBar = '|'.repeat(filledLength) + '.'.repeat(emptyLength);
+    const progressBar = "|".repeat(filledLength) + ".".repeat(emptyLength);
 
     // Pad the raid name to align all colons
-    const paddedName = raid.raid.padEnd(maxNameLength, ' ');
+    const paddedName = raid.raid.padEnd(maxNameLength, " ");
 
     // Always show increase indicator
     const increaseIndicator = `(+${raid.increased})`;
 
     // Calculate estimated completion time
     const remaining = raid.target - raid.completed;
-    let estimatedTime = '';
+    let estimatedTime = "";
     if (raid.completed >= raid.target) {
-      estimatedTime = 'Completed';
+      estimatedTime = "Completed";
     } else if (raid.increased === 0) {
-      estimatedTime = 'Never';
+      estimatedTime = "Never";
     } else {
       const daysRemaining = Math.ceil(remaining / raid.increased);
       estimatedTime = `~${daysRemaining}d`;
@@ -92,7 +99,7 @@ export function formatProgressResponse(raidData: Array<{ raid: string; completed
 
     response += `${paddedName}: [${progressBar}] ${percentage.toFixed(2)}% ${increaseIndicator} ETA: ${estimatedTime}\n`;
   });
-  response += '```';
+  response += "```";
 
   return response;
 }

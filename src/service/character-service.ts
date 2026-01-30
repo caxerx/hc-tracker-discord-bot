@@ -1,28 +1,34 @@
-import { format } from 'date-fns';
-import { getIncompleteCharacters as getIncompleteCharactersQuery } from '@/generated/prisma/sql/getIncompleteCharacters';
-import { getCharacterOwners as getCharacterOwnersQuery } from '@/generated/prisma/sql/getCharacterOwners';
-import { getIncompleteUsers as getIncompleteUsersQuery } from '@/generated/prisma/sql/getIncompleteUsers';
-import { prisma } from './db';
-import { getServerToday } from '@/utils/date';
+import { format } from "date-fns";
+import { getIncompleteCharacters as getIncompleteCharactersQuery } from "@/generated/prisma/sql/getIncompleteCharacters";
+import { getCharacterOwners as getCharacterOwnersQuery } from "@/generated/prisma/sql/getCharacterOwners";
+import { getIncompleteUsers as getIncompleteUsersQuery } from "@/generated/prisma/sql/getIncompleteUsers";
+import { prisma } from "./db";
+import { getServerToday } from "@/utils/date";
 
 /**
  * Get list of character names who have not completed all raids for a specific date
  * A character is considered incomplete if they haven't completed both Kirollas AND Carno raids
  */
-export async function getIncompleteCharacters(raidDate: Date): Promise<string[]> {
-  const dateStr = format(raidDate, 'yyyy-MM-dd');
+export async function getIncompleteCharacters(
+  raidDate: Date,
+): Promise<string[]> {
+  const dateStr = format(raidDate, "yyyy-MM-dd");
 
-  const results = await prisma.$queryRawTyped(getIncompleteCharactersQuery(dateStr));
+  const results = await prisma.$queryRawTyped(
+    getIncompleteCharactersQuery(dateStr),
+  );
 
-  return results.map(r => r.characterName);
+  return results.map((r) => r.characterName);
 }
 
 /**
  * Get a map of character names to their Discord user IDs for a specific date
  * A character can have multiple owners
  */
-export async function getCharacterOwners(raidDate: Date): Promise<Map<string, string[]>> {
-  const dateStr = format(raidDate, 'yyyy-MM-dd');
+export async function getCharacterOwners(
+  raidDate: Date,
+): Promise<Map<string, string[]>> {
+  const dateStr = format(raidDate, "yyyy-MM-dd");
 
   const results = await prisma.$queryRawTyped(getCharacterOwnersQuery(dateStr));
 
@@ -41,15 +47,18 @@ export async function getCharacterOwners(raidDate: Date): Promise<Map<string, st
  * A user is considered incomplete if any of their characters hasn't completed both Kirollas AND Carno raids
  */
 export async function getIncompleteUsers(raidDate: Date): Promise<Set<string>> {
-  const dateStr = format(raidDate, 'yyyy-MM-dd');
+  const dateStr = format(raidDate, "yyyy-MM-dd");
 
   const results = await prisma.$queryRawTyped(getIncompleteUsersQuery(dateStr));
 
-  return new Set(results.map(r => r.discordUserId));
+  return new Set(results.map((r) => r.discordUserId));
 }
 
-export async function getCharactersOwners(characters: string[], raidDate: Date): Promise<Set<string>> {
-  const dateStr = format(raidDate, 'yyyy-MM-dd');
+export async function getCharactersOwners(
+  characters: string[],
+  raidDate: Date,
+): Promise<Set<string>> {
+  const dateStr = format(raidDate, "yyyy-MM-dd");
 
   const results = await prisma.$queryRawTyped(getCharacterOwnersQuery(dateStr));
 
@@ -63,7 +72,10 @@ export async function getCharactersOwners(characters: string[], raidDate: Date):
   return ownerSet;
 }
 
-export async function getCharactersByOwner(ownerDiscordUserId: string, raidDate: Date) {
+export async function getCharactersByOwner(
+  ownerDiscordUserId: string,
+  raidDate: Date,
+) {
   const results = await prisma.registerCharacter.findMany({
     where: {
       registerDiscordUserId: ownerDiscordUserId,
@@ -73,5 +85,5 @@ export async function getCharactersByOwner(ownerDiscordUserId: string, raidDate:
     },
   });
 
-  return results
+  return results;
 }

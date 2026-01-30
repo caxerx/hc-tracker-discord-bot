@@ -69,8 +69,14 @@ export const chatInput: ChatInputCommand = async (ctx) => {
   const locale = getDiscordLocale(channelSetting);
   const t = fetchT(locale);
 
-  const oldCharacterName = ctx.interaction.options.getString("old_character_name", true);
-  const newCharacterName = ctx.interaction.options.getString("new_character_name", true);
+  const oldCharacterName = ctx.interaction.options.getString(
+    "old_character_name",
+    true,
+  );
+  const newCharacterName = ctx.interaction.options.getString(
+    "new_character_name",
+    true,
+  );
 
   const discordUserId = ctx.interaction.user.id;
 
