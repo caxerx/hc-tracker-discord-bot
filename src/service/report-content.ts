@@ -1,6 +1,7 @@
 import { DailyReportContent, RangedReportContent } from "@/components/report-content";
 import { getSession, type ReportGenerationSession } from "./session";
 import { generateDailyReport, generateRangedReport } from "./report";
+import client from "@/app";
 
 export async function getDailyReportContent(sessionId: string) {
     const session = await getSession(sessionId) as ReportGenerationSession;
@@ -15,8 +16,10 @@ export async function getDailyReportContent(sessionId: string) {
 
     const reportResult = await generateDailyReport(session.reportStartDate, session.reportRaidType);
 
+    const user = await client.users.fetch(session.actionUserId);
+
     return DailyReportContent({
-        userName: session.actionUserId,
+        userName: user.username,
         raidDate: session.reportStartDate,
         raidType: session.reportRaidType,
         reportResult: reportResult,
@@ -36,8 +39,10 @@ export async function getRangedReportContent(sessionId: string) {
 
     const reportResult = await generateRangedReport(session.reportStartDate, session.reportEndDate, session.reportRaidType);
 
+    const user = await client.users.fetch(session.actionUserId);
+
     return RangedReportContent({
-        userName: session.actionUserId,
+        userName: user.username,
         raidStartDate: session.reportStartDate,
         raidEndDate: session.reportEndDate,
         raidType: session.reportRaidType,
