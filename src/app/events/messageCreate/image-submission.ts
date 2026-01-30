@@ -9,7 +9,7 @@ import { createOrUpdateSession, generateSessionId, type DetectionWorkflowSession
 import { getUserCharacters } from '@/service/user';
 import { getServerToday } from '@/utils/date';
 import { createTask } from '@commandkit/tasks';
-import type { EventHandler } from 'commandkit';
+import { Logger, type EventHandler } from 'commandkit';
 import { MessageFlags, type Message, type TextChannel } from 'discord.js';
 
 const handler: EventHandler<'messageCreate'> = async (message) => {
@@ -89,12 +89,13 @@ async function handleDetection(message: Message) {
         flags: MessageFlags.IsComponentsV2
     })
 
-
-    await createTask({
+    const task = await createTask({
         name: 'message-removal',
         data: { sessionId, messageId: detectedInteractionMessage.id, channelId: detectedInteractionMessage.channelId },
-        schedule: Date.now() + 5 * 60 * 1000
+        schedule: Date.now() + (5 * 60 * 1000)
     });
+
+    Logger.info(`Detection task with id ${task} created for session ${sessionId} with message ${detectedInteractionMessage.id} in channel ${detectedInteractionMessage.channelId}`);
 
     await createOrUpdateSession({
         ...session,
