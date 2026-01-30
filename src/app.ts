@@ -1,6 +1,6 @@
 import { commandkit } from "commandkit";
 import { Client } from "discord.js";
-import { setupBullBoard } from "./service/bull-board";
+import { setupBullBoard } from "./utils/bull-board";
 
 commandkit.setPrefixResolver(async (message) => {
   const botRole = message.guild?.roles.botRoleFor(commandkit.client.user!);
