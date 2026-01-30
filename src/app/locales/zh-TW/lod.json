@@ -1,0 +1,9 @@
+{
+  "$command": {
+    "name": "lod",
+    "description": "顯示接下來 24 小時的死地時間表"
+  },
+  "no-upcoming-lod-events": "接下來 24 小時內沒有 LoD 事件。",
+  "lod-events": "## 死地時間表\n{{events}}",
+  "lod-event": "開始: <t:{{startUnix}}:R> 出王: <t:{{bossUnix}}:R> CH: {{chList}}"
+}

@@ -1,0 +1,9 @@
+{
+  "$command": {
+    "name": "lod",
+    "description": "Show the next 24 hours of Last of Death (LoD) events"
+  },
+  "no-upcoming-lod-events": "No upcoming LoD events in the next 24 hours.",
+  "lod-events": "## LoD Time\n{{events}}",
+  "lod-event": "Start: <t:{{startUnix}}:R> Boss: <t:{{bossUnix}}:R> CH: {{chList}}"
+}
