@@ -1,10 +1,42 @@
 {
-    "kirollas": {
-        "simpleName": "靈王",
-        "originalName": "Twisted Spirit King Kirollas"
-    },
-    "carno": {
-        "simpleName": "獸王",
-        "originalName": "Twisted Beast King Carno"
-    }
+  "kirollas": {
+    "simpleName": "靈王",
+    "originalName": "Twisted Spirit King Kirollas"
+  },
+  "carno": {
+    "simpleName": "獸王",
+    "originalName": "Twisted Beast King Carno"
+  },
+  "zenas": {
+    "simpleName": "Zenas",
+    "originalName": "Zenas"
+  },
+  "erienia": {
+    "simpleName": "Erenia",
+    "originalName": "Erenia"
+  },
+  "bellia": {
+    "simpleName": "Bellia",
+    "originalName": "Demon God Belial"
+  },
+  "paimon": {
+    "simpleName": "派蒙",
+    "originalName": "Evil Overlord Paimon"
+  },
+  "revenantpaimon": {
+    "simpleName": "復派",
+    "originalName": "Revenant Paimon"
+  },
+  "valehir": {
+    "simpleName": "暗龍",
+    "originalName": "Zombie Dragon Valehir"
+  },
+  "alzanor": {
+    "simpleName": "冰龍",
+    "originalName": "Ice Dragon Alzanor"
+  },
+  "asgobas": {
+    "simpleName": "Asgo",
+    "originalName": "Weak Asgobas"
+  }
 }
