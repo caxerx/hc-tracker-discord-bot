@@ -6,7 +6,7 @@ import {
   generateSessionId,
   type ReportGenerationSession,
 } from "@/service/session";
-import type { ChatInputCommand, CommandData, MessageCommand } from "commandkit";
+import type { ChatInputCommand, CommandData } from "commandkit";
 import { MessageFlags } from "discord.js";
 
 export const command: CommandData = {
