@@ -1,4 +1,8 @@
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - '@prisma/engines'
+  - '@swc/core'
+  - esbuild
+  - msgpackr-extract
   - prisma
+  - sharp

@@ -24,7 +24,7 @@
     "@commandkit/cache": "1.2.0-rc.13",
     "@commandkit/devtools": "1.2.0-rc.13",
     "@commandkit/i18n": "1.2.0-rc.13",
-    "@commandkit/tasks": "1.2.0-rc.13",
+    "@commandkit/tasks": "1.2.0-dev.20260130130954",
     "@commandkit/workflow": "dev",
     "@date-fns/tz": "^1.4.1",
     "@prisma/adapter-pg": "^7.3.0",
@@ -38,6 +38,6 @@
     "ioredis": "^5.9.2",
     "ky": "^1.14.3",
     "pg": "^8.17.2",
-    "workflow": "4.0.1-beta.12"
+    "workflow": "4.0.1-beta.50"
   }
 }
