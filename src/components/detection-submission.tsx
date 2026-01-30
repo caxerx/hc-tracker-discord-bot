@@ -96,8 +96,6 @@ export const createConfirmCompletionHandler = (sessionId: string) => {
       } else {
         await interactionMessage?.delete();
       }
-
-      context.dispose();
     }
 
     const characters = await getCharactersByOwner(
