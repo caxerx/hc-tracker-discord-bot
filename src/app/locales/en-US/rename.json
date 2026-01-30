@@ -1,0 +1,19 @@
+{
+  "$command": {
+    "name": "rename",
+    "description": "Rename your character",
+    "options": [
+      {
+        "name": "old_character_name",
+        "description": "The old name of your character"
+      },
+      {
+        "name": "new_character_name",
+        "description": "The new name of your character"
+      }
+    ]
+  },
+  "old-character-not-found": "Character `{{oldCharacterName}}` not found or not owned by you.",
+  "new-character-already-exists": "Character `{{newCharacterName}}` already exists. Please choose a different name.",
+  "character-renamed": "Character `{{oldCharacterName}}` has been renamed to `{{newCharacterName}}`."
+}

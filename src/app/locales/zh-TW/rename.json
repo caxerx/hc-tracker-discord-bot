@@ -1,0 +1,19 @@
+{
+  "$command": {
+    "name": "rename",
+    "description": "重新命名你的角色",
+    "options": [
+      {
+        "name": "old_character_name",
+        "description": "舊的角色名稱"
+      },
+      {
+        "name": "new_character_name",
+        "description": "新的角色名稱"
+      }
+    ]
+  },
+  "old-character-not-found": "找不到角色 `{{oldCharacterName}}` 或該角色不屬於你。",
+  "new-character-already-exists": "角色 `{{newCharacterName}}` 已經存在，請選擇不同的名稱。",
+  "character-renamed": "角色 `{{oldCharacterName}}` 已經重新命名為 `{{newCharacterName}}`。"
+}
