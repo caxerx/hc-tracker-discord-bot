@@ -26,14 +26,19 @@ export default task({
         return;
       }
 
-      const message = await channel.messages.fetch(messageId);
-      if (!message) {
-        Logger.warn(
-          `Message removal task failed for session ${sessionId} with message ${messageId} in channel ${channelId} because the message was not found`,
-        );
-        return;
+      try {
+        const message = await channel.messages.fetch(messageId);
+
+        if (!message) {
+          Logger.warn(
+            `Message removal task failed for session ${sessionId} with message ${messageId} in channel ${channelId} because the message was not found`,
+          );
+          return;
+        }
+        await message.delete();
+      } catch (error) {
+        Logger.error(`Error removing message task: ${error}`);
       }
-      await message.delete();
     }
   },
 });

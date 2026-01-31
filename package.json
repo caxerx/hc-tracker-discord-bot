@@ -24,7 +24,7 @@
     "@commandkit/cache": "1.2.0-rc.13",
     "@commandkit/devtools": "1.2.0-rc.13",
     "@commandkit/i18n": "1.2.0-rc.13",
-    "@commandkit/tasks": "1.2.0-dev.20260130130954",
+    "@commandkit/tasks": "1.2.0-dev.20260131063633",
     "@commandkit/workflow": "dev",
     "@date-fns/tz": "^1.4.1",
     "@prisma/adapter-pg": "^7.3.0",

@@ -24,8 +24,8 @@ importers:
         specifier: 1.2.0-rc.13
         version: 1.2.0-rc.13(typescript@5.9.3)
       '@commandkit/tasks':
-        specifier: 1.2.0-dev.20260130130954
-        version: 1.2.0-dev.20260130130954
+        specifier: 1.2.0-dev.20260131063633
+        version: 1.2.0-dev.20260131063633
       '@commandkit/workflow':
         specifier: dev
         version: 0.0.0-dev.20260130130954(@aws-sdk/client-sts@3.975.0)
@@ -401,8 +401,8 @@ packages:
   '@commandkit/i18n@1.2.0-rc.13':
     resolution: {integrity: sha512-h3EChsc4zdWJz9LvNyKS/tfLTN6Hg+qnCfAC8MyVZaarYDFlYL9KZ9sVdcR8UTdxEsMB5RayxPoUH845HklMGQ==}
 
-  '@commandkit/tasks@1.2.0-dev.20260130130954':
-    resolution: {integrity: sha512-OdG5BO0hTNcX1tSjoMdbWtHy/ae3wP2cb47LxOQLGnDTWCuNNOuJNCw+M13koOUjmLaKKoYd3/pmohZhVHs14A==}
+  '@commandkit/tasks@1.2.0-dev.20260131063633':
+    resolution: {integrity: sha512-1I3VDJk+F+Vq1+u+iHEKS87iKi5E3OJI5Tl7yWflDRfOVFUN2Bb/vYlDv+X8YaNFleNrFc7VMRCgAvA5fGOi4g==}
 
   '@commandkit/workflow@0.0.0-dev.20260130130954':
     resolution: {integrity: sha512-vqrI+vKY6lsq7waKO4m/VFN0/xHVT6k5ggjZrHZ1FqSRXtoGl+rRTDcZbTHDVzofrxRrbFJrE5AqaBEXU8hhaA==}
@@ -4011,7 +4011,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@commandkit/tasks@1.2.0-dev.20260130130954':
+  '@commandkit/tasks@1.2.0-dev.20260131063633':
     dependencies:
       cron-parser: 4.9.0
 
