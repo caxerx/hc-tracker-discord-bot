@@ -117,7 +117,8 @@ export const ReportModal = async ({ sessionId }: { sessionId: string }) => {
 function getReportGenerationHandler(sessionId: string) {
   const handleReportGeneration: OnModalKitSubmit = async (interaction, ctx) => {
     const session = (await getSession(sessionId)) as ReportGenerationSession;
-    const channel = interaction.channel as TextChannel;
+    const channel = interaction.channel;
+    if (!channel || !channel.isSendable()) return;
 
     const raids = interaction.fields.getStringSelectValues(
       "raids",

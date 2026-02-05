@@ -1,0 +1,14 @@
+{
+  "$command": {
+    "name": "dereg",
+    "description": "解除註冊一個角色到你的 Discord 帳號",
+    "options": [
+      {
+        "name": "old_character_name",
+        "description": "你的角色舊名稱"
+      }
+    ]
+  },
+  "old-character-not-found": "角色 `{{oldCharacterName}}` 不存在或不屬於你。",
+  "character-deregistered-successfully": "角色 `{{oldCharacterName}}` 已經解除註冊成功。"
+}

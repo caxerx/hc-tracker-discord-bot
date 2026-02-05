@@ -4,14 +4,14 @@ import {
   updateCompletedProgress,
 } from "@/service/completed-progress";
 import { type CommandData, type MessageCommand } from "commandkit";
-import type { TextChannel } from "discord.js";
 
 export const command: CommandData = {
   name: "progress",
 };
 
 export const message: MessageCommand = async (ctx) => {
-  const channel = ctx.message.channel as TextChannel;
+  const channel = ctx.message.channel;
+  if (!channel || !channel.isSendable()) return;
 
   if (ctx.message.author.bot) return;
 

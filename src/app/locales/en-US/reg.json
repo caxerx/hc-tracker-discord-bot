@@ -1,0 +1,14 @@
+{
+  "$command": {
+    "name": "reg",
+    "description": "Register a character to your Discord account",
+    "options": [
+      {
+        "name": "character_name",
+        "description": "The name of your character"
+      }
+    ]
+  },
+  "character-already-registered": "You have already registered the character `{{characterName}}`.",
+  "character-registered-successfully": "The character `{{characterName}}` has been registered successfully."
+}

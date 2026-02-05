@@ -23,13 +23,9 @@ import {
   Logger,
   type OnButtonKitClick,
   UserSelectMenu,
+  type CommandKitButtonBuilderInteractionCollectorDispatch,
 } from "commandkit";
-import {
-  ButtonStyle,
-  MessageFlags,
-  type ButtonInteraction,
-  type TextChannel,
-} from "discord.js";
+import { ButtonStyle, MessageFlags } from "discord.js";
 
 export const SubmissionNotification = async ({
   sessionId,
@@ -65,6 +61,9 @@ export const SubmissionNotification = async ({
         <ActionRow>
           <Button
             style={ButtonStyle.Primary}
+            options={{
+              once: false,
+            }}
             onClick={(interaction) => {
               showSubmissionModal({ interaction, sessionId });
             }}
@@ -170,7 +169,7 @@ export async function showSubmissionModal({
   interaction,
   sessionId,
 }: {
-  interaction: ButtonInteraction;
+  interaction: Parameters<CommandKitButtonBuilderInteractionCollectorDispatch>[0];
   sessionId: string;
 }) {
   const session = (await getSession(sessionId)) as RaidWorkflowSession;
@@ -242,8 +241,8 @@ function getSubmitAllCharactersHandler(sessionId: string) {
           .then((message) => message.delete());
       }
 
-      const channel = interaction.channel as TextChannel;
-      await channel.send({
+      if (!interaction.channel?.isSendable()) return;
+      await interaction.channel.send({
         content: t("hc-submission:complete-record-created", {
           user: `<@${interaction.user.id}>`,
         }),
@@ -270,7 +269,9 @@ function getSubmissionModalSubmitHandler(sessionId: string) {
   ) => {
     const session = (await getSession(sessionId)) as RaidWorkflowSession;
     const t = fetchT(session.locale);
-    const channel = interaction.channel as TextChannel;
+    const channel = interaction.channel;
+
+    if (!channel || !channel.isSendable()) return;
 
     if (session.actionUserId !== interaction.user.id) {
       await interaction.reply({

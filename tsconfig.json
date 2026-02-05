@@ -6,7 +6,7 @@
       "DOM"
     ],
     "target": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "module": "Preserve",
     "allowImportingTsExtensions": true,
     "allowSyntheticDefaultImports": true,

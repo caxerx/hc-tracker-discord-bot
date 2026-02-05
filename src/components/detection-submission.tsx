@@ -21,10 +21,14 @@ import {
   MessageFlags,
   type TextChannel,
 } from "discord.js";
+import { uniq } from "es-toolkit/array";
 
 export const DetectedMessage = async ({ sessionId }: { sessionId: string }) => {
   const session = (await getSession(sessionId)) as DetectionWorkflowSession;
   const t = fetchT(session.locale);
+  const remainingOwners = session.detectedOwners
+    .filter((owner) => !session.completedOwners.includes(owner))
+    .map((owner) => <TextDisplay content={`<@${owner}>`} />);
 
   return (
     <>
@@ -39,11 +43,13 @@ export const DetectedMessage = async ({ sessionId }: { sessionId: string }) => {
       <TextDisplay content={t("detection-submission:detected-member-notice")} />
 
       <Container accentColor={Colors.Blue}>
-        {session.detectedOwners
-          .filter((owner) => !session.completedOwners.includes(owner))
-          .map((owner) => (
-            <TextDisplay content={`<@${owner}>`} />
-          ))}
+        {remainingOwners.length > 0 ? (
+          remainingOwners
+        ) : (
+          <TextDisplay
+            content={t("detection-submission:no-remaining-owners")}
+          />
+        )}
       </Container>
       <ActionRow>
         <Button
@@ -79,6 +85,8 @@ export const createConfirmCompletionHandler = (sessionId: string) => {
     await interaction.deferUpdate();
 
     session.completedOwners.push(interaction.user.id);
+    session.completedOwners = uniq(session.completedOwners);
+
     await createOrUpdateSession(session);
 
     if (session.interactionMessageId) {
@@ -102,6 +110,7 @@ export const createConfirmCompletionHandler = (sessionId: string) => {
       interaction.user.id,
       getServerToday(),
     );
+
     await createCompleteRecord({
       userId: interaction.user.id,
       raidDate: getServerToday(),
@@ -110,11 +119,12 @@ export const createConfirmCompletionHandler = (sessionId: string) => {
       evidenceMessageUrl: session.evidenceMessageUrl,
     });
 
-    await (interaction.channel as TextChannel).send({
-      content: t("hc-submission:complete-record-created", {
-        user: `<@${interaction.user.id}>`,
-      }),
-    });
+    interaction.channel?.isSendable() &&
+      (await interaction.channel?.send({
+        content: t("hc-submission:complete-record-created", {
+          user: `<@${interaction.user.id}>`,
+        }),
+      }));
   };
 
   return handleConfirmCompletion;

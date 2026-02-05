@@ -1,4 +1,10 @@
-import { ActionRow, Button, TextDisplay, type ButtonKit } from "commandkit";
+import {
+  ActionRow,
+  Button,
+  TextDisplay,
+  type ButtonKit,
+  type CommandKitButtonBuilderInteractionCollectorDispatch,
+} from "commandkit";
 
 import {
   createOrUpdateSession,
@@ -25,6 +31,7 @@ import {
   getRangedReportContent,
 } from "@/service/report-content";
 import { delay } from "bullmq";
+import { channel } from "diagnostics_channel";
 
 export const ReportGenerationActionMessage = async ({
   sessionId,
@@ -90,10 +97,7 @@ export const ReportGenerationActionMessage = async ({
         <Button
           label={t("report:report-type:weekly")}
           style={ButtonStyle.Primary}
-          onClick={async (
-            interaction: ButtonInteraction,
-            context: ButtonKit,
-          ) => {
+          onClick={async (interaction, context) => {
             (await getReportShowModalHandler(sessionId, "weekly"))(
               interaction,
               context,
@@ -103,10 +107,7 @@ export const ReportGenerationActionMessage = async ({
         <Button
           label={t("report:report-type:daily")}
           style={ButtonStyle.Success}
-          onClick={async (
-            interaction: ButtonInteraction,
-            context: ButtonKit,
-          ) => {
+          onClick={async (interaction, context) => {
             (await getReportShowModalHandler(sessionId, "daily"))(
               interaction,
               context,
@@ -116,10 +117,7 @@ export const ReportGenerationActionMessage = async ({
         <Button
           label={t("report:report-type:monthly")}
           style={ButtonStyle.Secondary}
-          onClick={async (
-            interaction: ButtonInteraction,
-            context: ButtonKit,
-          ) => {
+          onClick={async (interaction, context) => {
             (await getReportShowModalHandler(sessionId, "monthly"))(
               interaction,
               context,
@@ -134,10 +132,10 @@ export const ReportGenerationActionMessage = async ({
 async function getReportShowModalHandler(
   sessionId: string,
   type: "daily" | "weekly" | "monthly",
-) {
+): Promise<CommandKitButtonBuilderInteractionCollectorDispatch> {
   await delay(100);
 
-  return async (interaction: ButtonInteraction, context: ButtonKit) => {
+  return async (interaction, context) => {
     const session = (await getSession(sessionId)) as ReportGenerationSession;
     session.reportType = type;
     await createOrUpdateSession(session);
@@ -150,39 +148,43 @@ async function getReportShowModalHandler(
 function getReportQuickGenerationHandler(
   sessionId: string,
   type: "today" | "yesterday" | "last-week" | "this-week",
-) {
-  return async (interaction: ButtonInteraction, context: ButtonKit) => {
-    const session = (await getSession(sessionId)) as ReportGenerationSession;
+): CommandKitButtonBuilderInteractionCollectorDispatch {
+  const handleReportQuickGeneration: CommandKitButtonBuilderInteractionCollectorDispatch =
+    async (interaction, context) => {
+      const session = (await getSession(sessionId)) as ReportGenerationSession;
 
-    session.reportType = getQuickReportTypeMapping(type);
-    if (type === "today" || type === "yesterday") {
-      session.reportStartDate = format(
-        getQuickReportDateOrRange(type),
-        "yyyy-MM-dd",
-      );
-    } else {
-      const [startDate, endDate] = getQuickReportDateOrRange(type);
-      session.reportStartDate = format(startDate, "yyyy-MM-dd");
-      session.reportEndDate = format(endDate, "yyyy-MM-dd");
-    }
-    session.reportRaidType = RaidType.Kirollas;
+      session.reportType = getQuickReportTypeMapping(type);
+      if (type === "today" || type === "yesterday") {
+        session.reportStartDate = format(
+          getQuickReportDateOrRange(type),
+          "yyyy-MM-dd",
+        );
+      } else {
+        const [startDate, endDate] = getQuickReportDateOrRange(type);
+        session.reportStartDate = format(startDate, "yyyy-MM-dd");
+        session.reportEndDate = format(endDate, "yyyy-MM-dd");
+      }
+      session.reportRaidType = RaidType.Kirollas;
 
-    await createOrUpdateSession(session);
+      await createOrUpdateSession(session);
 
-    const channel = interaction.channel as TextChannel;
+      const channel = interaction.channel;
+      if (!channel || !channel.isSendable()) return;
 
-    if (type === "today" || type === "yesterday") {
-      await channel.send({
-        flags: MessageFlags.IsComponentsV2,
-        components: await getDailyReportContent(sessionId),
-      });
-    } else {
-      await channel.send({
-        flags: MessageFlags.IsComponentsV2,
-        components: await getRangedReportContent(sessionId),
-      });
-    }
+      if (type === "today" || type === "yesterday") {
+        await channel.send({
+          flags: MessageFlags.IsComponentsV2,
+          components: await getDailyReportContent(sessionId),
+        });
+      } else {
+        await channel.send({
+          flags: MessageFlags.IsComponentsV2,
+          components: await getRangedReportContent(sessionId),
+        });
+      }
 
-    interaction.deferUpdate();
-  };
+      interaction.deferUpdate();
+    };
+
+  return handleReportQuickGeneration;
 }

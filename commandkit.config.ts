@@ -4,7 +4,6 @@ import { cache } from "@commandkit/cache";
 import { i18n } from "@commandkit/i18n";
 import { setDriver, tasks } from "@commandkit/tasks";
 import { devtools } from "@commandkit/devtools";
-// @ts-ignore
 import { BullMQDriver } from "@commandkit/tasks/bullmq";
 import { workflow } from "@commandkit/workflow";
 

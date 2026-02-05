@@ -67,7 +67,9 @@ const handler: EventHandler<"messageCreate"> = async (message) => {
   });
 };
 
-async function handleDetection(message: Message) {
+const handleDetection = async (
+  message: Parameters<EventHandler<"messageCreate">>[0],
+) => {
   const interactionUserCharacters = await getUserCharacters(message.author.id);
 
   const detectionResult = await detectCharactersAndDate(
@@ -106,9 +108,11 @@ async function handleDetection(message: Message) {
 
   const detectedMessage = await DetectedMessage({ sessionId });
 
-  const detectedInteractionMessage = await (
-    message.channel as TextChannel
-  ).send({
+  if (!message.channel?.isSendable()) {
+    return;
+  }
+
+  const detectedInteractionMessage = await message.channel.send({
     components: detectedMessage,
     flags: MessageFlags.IsComponentsV2,
   });
@@ -131,6 +135,6 @@ async function handleDetection(message: Message) {
     ...session,
     interactionMessageId: detectedInteractionMessage.id,
   });
-}
+};
 
 export default handler;

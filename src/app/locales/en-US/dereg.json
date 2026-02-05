@@ -1,0 +1,14 @@
+{
+  "$command": {
+    "name": "dereg",
+    "description": "Deregister a character from your Discord account",
+    "options": [
+      {
+        "name": "old_character_name",
+        "description": "The old name of your character"
+      }
+    ]
+  },
+  "old-character-not-found": "Character `{{oldCharacterName}}` not found or not owned by you.",
+  "character-deregistered-successfully": "The character `{{oldCharacterName}}` has been deregistered successfully."
+}
