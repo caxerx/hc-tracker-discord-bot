@@ -1,15 +1,2 @@
-# hc-tracker-discord-bot
-
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.3.5. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
+# HC Tracker Discord Bot
+A discord bot for internal usage. It record the completion of Hardcore Raids in Nostale and generate the report to count the completions for each character to find out the character that do not reach the completion target and reward the characters that have the most completions.

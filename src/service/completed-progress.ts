@@ -1,3 +1,4 @@
+import { getDayAverageDeltas } from "@/generated/prisma/sql";
 import { prisma } from "@/service/db";
 
 interface RaidData {
@@ -27,6 +28,7 @@ export async function updateCompletedProgress(
     });
 
     let increased = 0;
+    const now = new Date();
 
     if (!existingProgress) {
       // Create new record if it doesn't exist
@@ -34,18 +36,50 @@ export async function updateCompletedProgress(
         data: {
           raidName: raid.raid,
           completedCount: raid.completed,
-          lastUpdate: new Date(),
+          lastUpdate: now,
         },
       });
       increased = raid.completed;
+
+      // Create history record (no previous history, assume deltaDay = 1)
+      await prisma.completedProgressHistory.create({
+        data: {
+          raidName: raid.raid,
+          completedCount: raid.completed,
+          deltaCount: increased,
+          deltaDays: 1,
+          historyDate: now,
+        },
+      });
     } else if (raid.completed > existingProgress.completedCount) {
       // Update only if the new count is higher
       increased = raid.completed - existingProgress.completedCount;
+
+      // Calculate days since last update
+      const lastUpdateDate = existingProgress.lastUpdate;
+      const deltaDays = Math.max(
+        1,
+        Math.ceil(
+          (now.getTime() - lastUpdateDate.getTime()) / (1000 * 60 * 60 * 24),
+        ),
+      );
+
       await prisma.completedProgress.update({
         where: { raidName: raid.raid },
         data: {
           completedCount: raid.completed,
-          lastUpdate: new Date(),
+          lastUpdate: now,
+        },
+      });
+
+      // Create history record
+      await prisma.completedProgressHistory.create({
+        data: {
+          raidName: raid.raid,
+          completedCount: raid.completed,
+          deltaCount: increased,
+          deltaDays: deltaDays,
+          historyDate: now,
         },
       });
     }
@@ -60,14 +94,22 @@ export async function updateCompletedProgress(
   return result;
 }
 
-export function formatProgressResponse(
+export async function formatProgressResponse(
   raidData: Array<{
     raid: string;
     completed: number;
     target: number;
     increased: number;
   }>,
-): string {
+): Promise<string> {
+  const dayAverages = await prisma.$queryRawTyped(getDayAverageDeltas());
+  const dailyAverageByRaid = new Map(
+    dayAverages.map((r) => [
+      r.raidName,
+      r.dailyAverage != null ? Number(r.dailyAverage) : 0,
+    ]),
+  );
+
   // Find the longest raid name for alignment
   const maxNameLength = Math.max(...raidData.map((raid) => raid.raid.length));
 
@@ -85,16 +127,19 @@ export function formatProgressResponse(
     // Always show increase indicator
     const increaseIndicator = `(+${raid.increased})`;
 
-    // Calculate estimated completion time
+    // Calculate estimated completion time using day average
     const remaining = raid.target - raid.completed;
     let estimatedTime = "";
     if (raid.completed >= raid.target) {
       estimatedTime = "Completed";
-    } else if (raid.increased === 0) {
-      estimatedTime = "Never";
     } else {
-      const daysRemaining = Math.ceil(remaining / raid.increased);
-      estimatedTime = `~${daysRemaining}d`;
+      const dailyAverage = dailyAverageByRaid.get(raid.raid) ?? 0;
+      if (dailyAverage <= 0) {
+        estimatedTime = "Never";
+      } else {
+        const daysRemaining = Math.ceil(remaining / dailyAverage);
+        estimatedTime = `~${daysRemaining}d`;
+      }
     }
 
     response += `${paddedName}: [${progressBar}] ${percentage.toFixed(2)}% ${increaseIndicator} ETA: ${estimatedTime}\n`;

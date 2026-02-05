@@ -92,6 +92,15 @@ model CompletedProgress {
   lastUpdate     DateTime @default(now())
 }
 
+model CompletedProgressHistory {
+  id             String   @id @default(uuid())
+  raidName       String
+  completedCount Int
+  deltaCount     Int
+  deltaDays      Int
+  historyDate    DateTime @default(now())
+}
+
 model UserSetting {
   id            String  @id @default(uuid())
   discordUserId String  @unique

@@ -38,7 +38,7 @@ export const message: MessageCommand = async (ctx) => {
 
   const progressWithIncrease = await updateCompletedProgress(raidData);
 
-  const response = formatProgressResponse(progressWithIncrease);
+  const response = await formatProgressResponse(progressWithIncrease);
 
   await ctx.message.reply(response);
 };
