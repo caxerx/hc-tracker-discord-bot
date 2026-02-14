@@ -22,7 +22,9 @@ model RegisterCharacter {
   registerDate   DateTime  @default(now()) @db.Date
   unregisterDate DateTime? @default("2099-12-31T23:59:59.999Z") @db.Date
 
-  raidCompletions RaidCompletion[]
+  raidCompletions       RaidCompletion[]
+  raidEventParticipants RaidEventParticipant[]
+  characterSettings     CharacterSetting?
 
   @@index([registerDiscordUserId, registerDate, unregisterDate])
 }
@@ -65,10 +67,14 @@ model RaidCompletionEvidence {
 }
 
 enum ChannelType {
+  // HC Tracker
   TodaySubmission
   OtherDateSubmission
   DailyNotification
   BotCommand
+
+  // Raid Helper
+  RaidEvent
 }
 
 enum Language {
@@ -107,4 +113,113 @@ model UserSetting {
   isAdmin       Boolean @default(false)
 
   @@index([discordUserId])
+}
+
+model RaidEvent {
+  id                          String   @id @default(uuid())
+  eventName                   String
+  eventTime                   DateTime
+  eventLocation               String
+  eventOrganizerDiscordUserId String
+
+  eventDescription      String?
+  raidEventParticipants RaidEventParticipant[]
+
+  eventId      String?       @unique
+  discordEvent DiscordEvent? @relation(fields: [eventId], references: [eventId])
+}
+
+model DiscordEvent {
+  id        String     @id @default(uuid())
+  guildId   String
+  eventId   String     @unique
+  raidEvent RaidEvent?
+}
+
+model RaidEventParticipant {
+  id          String            @id @default(uuid())
+  raidEventId String
+  raidEvent   RaidEvent         @relation(fields: [raidEventId], references: [id])
+  characterId String
+  character   RegisterCharacter @relation(fields: [characterId], references: [id])
+  specialist  Specialist
+}
+
+enum CharacterClass {
+  Adventurer
+  Archer
+  Swordman
+  Mage
+  MaterialArtist
+}
+
+enum Specialist {
+  None
+  // General
+  Jajamaru
+  Pyjama
+  Chicken
+  Pirate
+  Wedding
+
+  // Troll
+  Angler
+  Chef
+  PetTrainer
+
+  // Archer
+  Ranger
+  Assassin
+  Destroyer
+  WildKeeper
+  FierCannoneer
+  Scout
+  DemonHunter
+  AvengingAngel
+  Sunchaser
+  Blaster
+  FogHunter
+
+  // Swordman
+  Warrior
+  Ninja
+  Crusader
+  Berserker
+  Gladiator
+  BattleMonk
+  DeathReaper
+  Renegade
+  WaterfallBerserker
+  DragonKnight
+  StoneBreaker
+
+  // Mage
+  RedMagician
+  HolyMage
+  BlueMagician
+  DarkGunner
+  Volcano
+  TideLord
+  Seer
+  Archmage
+  VoodooPriest
+  Gravity
+  FireStorm
+
+  // MA
+  DraconicFist
+  MysticArts
+  MaterWolf
+  DemonWarrior
+  FlameDruid
+  HydraulicFist
+  Thunderer
+}
+
+model CharacterSetting {
+  id                String            @id @default(uuid())
+  characterId       String            @unique
+  character         RegisterCharacter @relation(fields: [characterId], references: [id])
+  characterClass    CharacterClass
+  defaultSpecialist Specialist
 }

@@ -57,7 +57,7 @@ interface AIApiResponse {
 
 if (!process.env.AI_API_URL || !process.env.AI_API_KEY) {
   throw new Error(
-    "AI_API_URL or AI_API_KEY is not set in environment variables",
+    "AI_API_URL or AI_API_KEY is not set in environment variables"
   );
 }
 
@@ -71,7 +71,7 @@ const apiClient = ky.extend({
 });
 
 export async function analyzeRaidImage(
-  imageUrl: string,
+  imageUrl: string
 ): Promise<RaidProgress[]> {
   const requestBody: AIApiRequest = {
     max_tokens: 2048,
@@ -115,7 +115,7 @@ export async function analyzeRaidImage(
         },
       },
     },
-    model: "claude-opus-4-5-20251101",
+    model: "claude-opus-4-6",
   };
 
   const response = await apiClient.post("", {
@@ -124,7 +124,7 @@ export async function analyzeRaidImage(
 
   if (!response.ok) {
     throw new Error(
-      `AI API request failed: ${response.status} ${response.statusText}`,
+      `AI API request failed: ${response.status} ${response.statusText}`
     );
   }
 
@@ -142,7 +142,7 @@ export async function analyzeRaidImage(
 
 export async function detectCharactersAndDate(
   imageUrls: string[],
-  raidDate: Date,
+  raidDate: Date
 ): Promise<CharacterDetectionResult> {
   // Get list of characters who haven't completed all raids today
   const whitelistedCharacters = await getIncompleteCharacters(raidDate);
@@ -174,21 +174,17 @@ export async function detectCharactersAndDate(
               type: "string",
             },
           },
-          detectedDate: {
-            type: ["string", "null"],
-            format: "date-time",
-            description:
-              "The date string detected in the image. Return null if no date string is detected in the image. If multiple dates are detected, use the one written in yellow text.",
-          },
         },
         required: ["detectedCharacter"],
         additionalProperties: false,
       },
     },
-    model: "claude-opus-4-5-20251101",
+    model: "claude-opus-4-6",
   };
 
-  const systemPrompt = `Detect all date string and character string in the image. Only the following whitelisted character name should be output if detected in the image: \n${whitelistedCharacters.join("\n")}`;
+  const systemPrompt = `Detect all character names in the image. Only the following whitelisted character name should be output if detected in the image: \n${whitelistedCharacters.join(
+    "\n"
+  )}`;
 
   const response = await apiClient.post("", {
     body: JSON.stringify({
@@ -199,7 +195,7 @@ export async function detectCharactersAndDate(
 
   if (!response.ok) {
     throw new Error(
-      `AI API request failed: ${response.status} ${response.statusText}`,
+      `AI API request failed: ${response.status} ${response.statusText}`
     );
   }
 

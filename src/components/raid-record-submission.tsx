@@ -1,7 +1,7 @@
 import { RaidType, RegisterCharacter } from "@/generated/prisma/browser";
 import { getCommandMention } from "@/service/command-manager";
 import { createCompleteRecord } from "@/service/hc-submission";
-import { raids } from "@/service/raids";
+import { raids } from "@/utils/raids";
 import {
   deleteSession,
   getSession,

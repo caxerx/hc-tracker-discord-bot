@@ -6,7 +6,7 @@ import { Logger } from "commandkit";
 import { TZDate } from "@date-fns/tz";
 import { format } from "date-fns";
 import { buildDailyNotificationMessage } from "@/service/daily-reset";
-import { getDiscordLocale } from "@/service/language";
+import { getDiscordLocale } from "@/utils/language";
 import { ChannelType } from "@/generated/prisma/enums";
 
 export default task({

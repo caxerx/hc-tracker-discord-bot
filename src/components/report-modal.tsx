@@ -1,5 +1,5 @@
 import type { RaidType } from "@/generated/prisma/enums";
-import { raids } from "@/service/raids";
+import { raids } from "@/utils/raids";
 import {
   getDailyReportContent,
   getRangedReportContent,

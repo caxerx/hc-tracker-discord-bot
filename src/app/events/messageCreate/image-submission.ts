@@ -4,7 +4,7 @@ import { ChannelType } from "@/generated/prisma/enums";
 import { detectCharactersAndDate } from "@/service/ai-service";
 import { getChannelLanguage, getChannelTypes } from "@/service/channel-setting";
 import { getCharactersOwners } from "@/service/character-service";
-import { getDiscordLocale } from "@/service/language";
+import { getDiscordLocale } from "@/utils/language";
 import {
   createOrUpdateSession,
   generateSessionId,

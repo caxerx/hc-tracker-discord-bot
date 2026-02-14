@@ -1,6 +1,6 @@
 import { getChannelLanguage } from "@/service/channel-setting";
 import { prisma } from "@/service/db";
-import { getDiscordLocale } from "@/service/language";
+import { getDiscordLocale } from "@/utils/language";
 import { fetchT } from "@commandkit/i18n";
 import {
   Logger,

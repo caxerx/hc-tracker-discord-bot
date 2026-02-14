@@ -1,6 +1,6 @@
 import { ReportGenerationActionMessage } from "@/components/report";
 import { getChannelLanguage } from "@/service/channel-setting";
-import { getDiscordLocale } from "@/service/language";
+import { getDiscordLocale } from "@/utils/language";
 import {
   createOrUpdateSession,
   generateSessionId,

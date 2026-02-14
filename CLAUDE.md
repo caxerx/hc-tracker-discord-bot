@@ -12,6 +12,7 @@ This is a Discord bot designed to manage family members' raid completion counts.
 
 ### Discord Integration
 - **discord.js v14**: Discord bot framework and API wrapper
+- **CommandKit**: A Meta-framework for Discord bot. Documentation: https://commandkit.dev/docs/guide/getting-started/introduction
 
 ### Database & Storage
 - **PostgreSQL 16**: Primary database for persistent data storage

@@ -1,5 +1,5 @@
 import { getChannelLanguage } from "@/service/channel-setting";
-import { getDiscordLocale } from "@/service/language";
+import { getDiscordLocale } from "@/utils/language";
 import { getLoDScheduleString } from "@/utils/lod";
 import type { ChatInputCommand, CommandData } from "commandkit";
 import { MessageFlags } from "discord.js";
