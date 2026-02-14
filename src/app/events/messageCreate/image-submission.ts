@@ -22,7 +22,7 @@ const handler: EventHandler<"messageCreate"> = async (message) => {
 
   if (
     !message.attachments.some((attachment) =>
-      attachment.contentType?.startsWith("image/"),
+      attachment.contentType?.startsWith("image/")
     )
   )
     return;
@@ -36,7 +36,12 @@ const handler: EventHandler<"messageCreate"> = async (message) => {
   const isToday = channelTypes.includes(ChannelType.TodaySubmission);
 
   if (isToday) {
-    handleDetection(message);
+    try {
+      await handleDetection(message);
+    } catch (error) {
+      Logger.error(`Failed to handle detection: ${error}`);
+      console.error(error);
+    }
   }
 
   const channelLanguage = await getChannelLanguage(message.channelId);
@@ -68,24 +73,24 @@ const handler: EventHandler<"messageCreate"> = async (message) => {
 };
 
 const handleDetection = async (
-  message: Parameters<EventHandler<"messageCreate">>[0],
+  message: Parameters<EventHandler<"messageCreate">>[0]
 ) => {
   const interactionUserCharacters = await getUserCharacters(message.author.id);
 
   const detectionResult = await detectCharactersAndDate(
     message.attachments.map((attachment) => attachment.url),
-    getServerToday(),
+    getServerToday()
   );
   const detectedCharacters = detectionResult.detectedCharacter.filter(
     (character) =>
-      !interactionUserCharacters.some((c) => c.characterName === character),
+      !interactionUserCharacters.some((c) => c.characterName === character)
   );
 
   if (detectedCharacters.length == 0) return;
 
   const ownerSet = await getCharactersOwners(
     detectedCharacters,
-    getServerToday(),
+    getServerToday()
   );
 
   const channelLanguage = await getChannelLanguage(message.channelId);
@@ -128,7 +133,7 @@ const handleDetection = async (
   });
 
   Logger.info(
-    `Detection task with id ${task} created for session ${sessionId} with message ${detectedInteractionMessage.id} in channel ${detectedInteractionMessage.channelId}`,
+    `Detection task with id ${task} created for session ${sessionId} with message ${detectedInteractionMessage.id} in channel ${detectedInteractionMessage.channelId}`
   );
 
   await createOrUpdateSession({

@@ -187,7 +187,7 @@ export async function showSubmissionModal({
   if (!session.isAdmin && characters.length === 0) {
     await interaction.reply({
       content: t("general:no-characters-registered", {
-        reg: getCommandMention("reg"),
+        reg: await getCommandMention("reg"),
       }),
       flags: MessageFlags.Ephemeral,
     });

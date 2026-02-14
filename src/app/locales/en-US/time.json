@@ -1,0 +1,12 @@
+{
+  "$command": {
+    "name": "time",
+    "description": "Get the time of a relative time text in UTC+8",
+    "options": [
+      {
+        "name": "time",
+        "description": "The relative time text, e.g. tomorrow morning 7am, next week Tuesday 8pm"
+      }
+    ]
+  }
+}

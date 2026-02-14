@@ -7,7 +7,9 @@ export async function getCommandMention(commandName: string) {
   cacheTag("command");
   cacheLife("1d");
 
-  const command = await client.application?.commands.fetch(commandName);
+  const command = (await client.application?.commands.fetch())?.find(
+    (command) => command.name === commandName
+  );
 
   return command ? `</${command.name}:${command.id}>` : `/${commandName}`;
 }

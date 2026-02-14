@@ -125,6 +125,8 @@ model RaidEvent {
   eventDescription      String?
   raidEventParticipants RaidEventParticipant[]
 
+  eventMessages String[]
+
   eventId      String?       @unique
   discordEvent DiscordEvent? @relation(fields: [eventId], references: [eventId])
 }

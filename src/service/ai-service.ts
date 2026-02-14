@@ -12,17 +12,27 @@ export interface CharacterDetectionResult {
   detectedDate: string | null;
 }
 
+interface AIApiTextContent {
+  type: "text";
+  text: string;
+}
+
+interface AIApiImageContent {
+  type: "image";
+  source: {
+    type: "url";
+    url: string;
+  };
+}
+
+type AIApiContent = AIApiTextContent | AIApiImageContent;
+
 interface AIApiRequest {
+  system?: string;
   max_tokens: number;
   messages: Array<{
     role: string;
-    content: Array<{
-      type: string;
-      source: {
-        type: string;
-        url: string;
-      };
-    }>;
+    content: AIApiContent[];
   }>;
   output_format: {
     type: string;
@@ -205,6 +215,64 @@ export async function detectCharactersAndDate(
 
   if (textContent) {
     return JSON.parse(textContent) as CharacterDetectionResult;
+  }
+
+  throw new Error("Invalid response format from AI API");
+}
+
+export async function getTime(relativeTimeText: string): Promise<Date> {
+  const requestBody: AIApiRequest = {
+    max_tokens: 1000,
+    system: `Current time is ${new Date().toISOString()}. Please get the ISO format of the time that user specify. If no timezone is specify, it would be UTC+8. If the user specify it's "Server Time", they mean CET/CEST time.`,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: relativeTimeText,
+          },
+        ],
+      },
+    ],
+    output_format: {
+      type: "json_schema",
+      schema: {
+        type: "object",
+        properties: {
+          time: {
+            type: "string",
+            description: "The ISO 8601 formatted time specify by the user.",
+            items: {
+              type: "string",
+            },
+          },
+        },
+        required: ["time"],
+        additionalProperties: false,
+      },
+    },
+    model: "claude-opus-4-6",
+  };
+
+  const response = await apiClient.post("", {
+    body: JSON.stringify(requestBody),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `AI API request failed: ${response.status} ${response.statusText}`
+    );
+  }
+
+  const data = (await response.json()) as AIApiResponse;
+
+  const textContent = JSON.parse(data.content?.[0]?.text ?? "{}") as {
+    time: string;
+  };
+
+  if (textContent?.time) {
+    return new Date(textContent.time);
   }
 
   throw new Error("Invalid response format from AI API");

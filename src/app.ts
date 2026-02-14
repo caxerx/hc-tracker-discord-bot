@@ -12,7 +12,12 @@ commandkit.setPrefixResolver(async (message) => {
 });
 
 const client = new Client({
-  intents: ["Guilds", "GuildMessages", "MessageContent"],
+  intents: [
+    "Guilds",
+    "GuildMessages",
+    "MessageContent",
+    "GuildScheduledEvents",
+  ],
 });
 
 setupBullBoard();
